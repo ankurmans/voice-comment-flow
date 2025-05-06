@@ -1,12 +1,15 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { SocialAccount } from "@/types";
 import { socialAccountsApi, brandVoiceApi } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useAccounts = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
   const [accountToDisconnect, setAccountToDisconnect] = useState<SocialAccount | null>(null);
   const [brandVoiceDialogOpen, setBrandVoiceDialogOpen] = useState(false);
@@ -20,6 +23,7 @@ export const useAccounts = () => {
       const response = await socialAccountsApi.getAll();
       return response.data || [];
     },
+    enabled: isAuthenticated, // Only run the query if the user is authenticated
   });
 
   // Query brand voices
@@ -29,10 +33,20 @@ export const useAccounts = () => {
       const response = await brandVoiceApi.getAll();
       return response.data || [];
     },
+    enabled: isAuthenticated, // Only run the query if the user is authenticated
   });
 
   // Connect account function
   const connectAccount = (platform: string) => {
+    if (!isAuthenticated) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: `You must be logged in to connect ${platform}`,
+      });
+      return;
+    }
+
     try {
       if (platform === "instagram") {
         toast({

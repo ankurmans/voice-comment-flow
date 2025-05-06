@@ -1,12 +1,30 @@
 
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import { ConnectPlatformCard } from "./ConnectPlatformCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ConnectPlatformsSectionProps {
   onConnectPlatform: (platform: string) => void;
 }
 
 export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsSectionProps) {
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+
+  const handleConnect = (platform: string) => {
+    if (!isAuthenticated) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: `You must be logged in to connect ${platform}`,
+      });
+      return;
+    }
+
+    onConnectPlatform(platform);
+  };
+
   // Google/Yelp icon
   const GoogleIcon = (
     <svg
@@ -73,7 +91,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Track engagement metrics"
         ]}
         bgClass="bg-blue-50"
-        onConnect={() => onConnectPlatform("facebook")}
+        onConnect={() => handleConnect("facebook")}
       />
       
       <ConnectPlatformCard
@@ -86,7 +104,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Boost engagement with timely replies"
         ]}
         bgClass="bg-pink-50"
-        onConnect={() => onConnectPlatform("instagram")}
+        onConnect={() => handleConnect("instagram")}
       />
       
       <ConnectPlatformCard
@@ -99,7 +117,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Improve engagement with followers"
         ]}
         bgClass="bg-gray-50"
-        onConnect={() => onConnectPlatform("tiktok")}
+        onConnect={() => handleConnect("tiktok")}
       />
       
       <ConnectPlatformCard
@@ -112,7 +130,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Build community with timely responses"
         ]}
         bgClass="bg-red-50"
-        onConnect={() => onConnectPlatform("youtube")}
+        onConnect={() => handleConnect("youtube")}
       />
       
       <ConnectPlatformCard
@@ -125,7 +143,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Engage with your network"
         ]}
         bgClass="bg-blue-50"
-        onConnect={() => onConnectPlatform("linkedin")}
+        onConnect={() => handleConnect("linkedin")}
       />
       
       <ConnectPlatformCard
@@ -138,7 +156,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Manage your business reputation"
         ]}
         bgClass="bg-red-50"
-        onConnect={() => onConnectPlatform("yelp")}
+        onConnect={() => handleConnect("yelp")}
       />
       
       <ConnectPlatformCard
@@ -151,7 +169,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Improve your local SEO with engagement"
         ]}
         bgClass="bg-red-50"
-        onConnect={() => onConnectPlatform("google")}
+        onConnect={() => handleConnect("google")}
       />
       
       <ConnectPlatformCard
@@ -164,7 +182,7 @@ export function ConnectPlatformsSection({ onConnectPlatform }: ConnectPlatformsS
           "Manage multiple conversations"
         ]}
         bgClass="bg-green-50"
-        onConnect={() => onConnectPlatform("whatsapp")}
+        onConnect={() => handleConnect("whatsapp")}
       />
     </div>
   );

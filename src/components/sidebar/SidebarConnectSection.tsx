@@ -6,10 +6,12 @@ import { socialAccountsApi, userDataApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SidebarConnectSection() {
   const { toast } = useToast();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   // Check for successful connection on mount
   useEffect(() => {
@@ -86,6 +88,15 @@ export function SidebarConnectSection() {
   );
 
   const handleFacebookClick = () => {
+    if (!isAuthenticated) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You must be logged in to connect Facebook",
+      });
+      return;
+    }
+    
     toast({
       title: "Facebook integration",
       description: "This is a demo. Facebook integration would require a Facebook Developer account.",
@@ -93,6 +104,15 @@ export function SidebarConnectSection() {
   };
 
   const handleInstagramClick = () => {
+    if (!isAuthenticated) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You must be logged in to connect Instagram",
+      });
+      return;
+    }
+    
     const token = localStorage.getItem("auth_token");
     if (!token) {
       toast({
@@ -121,6 +141,15 @@ export function SidebarConnectSection() {
   };
 
   const handleDemoIntegration = (platform: string) => {
+    if (!isAuthenticated) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: `You must be logged in to connect ${platform}`,
+      });
+      return;
+    }
+    
     toast({
       title: `${platform} integration`,
       description: `This is a demo. ${platform} integration would require a ${platform} Developer account.`,
