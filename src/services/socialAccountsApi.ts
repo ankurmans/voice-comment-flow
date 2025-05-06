@@ -22,7 +22,6 @@ export const socialAccountsApi = {
       }
       
       // Redirect to the Instagram auth edge function with the token in the URL
-      // This is a more reliable way to pass the token
       window.location.href = `${EDGE_FUNCTION_URL}/instagram-auth/authorize?token=${encodeURIComponent(token)}`;
       
       // This is a redirect, so we don't return a response
@@ -53,14 +52,11 @@ export const socialAccountsApi = {
 // Add exports for user data compliance URLs
 export const userDataApi = {
   // Facebook Data Deletion URL - for reference and documentation
-  // This is the URL you'll provide to Facebook for data deletion requests
   getDataDeletionUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/data-deletion`,
   
   // Privacy Policy URL - for reference and documentation
-  // This is the URL you'll provide to Facebook for privacy policy requirements
   getPrivacyPolicyUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/privacy-policy`,
   
   // Deauthorize Callback URL - for reference and documentation
-  // This is the URL you'll provide to Facebook for deauthorization callbacks
   getDeauthorizeUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/deauthorize`,
 };

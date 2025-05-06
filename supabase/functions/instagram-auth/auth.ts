@@ -40,17 +40,11 @@ function handleAuthorize(req: Request, url: URL) {
   // Store token in session for later use during callback
   const sessionCookie = `instagram_auth_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`;
   
-  // For debugging
-  console.log("Starting Instagram auth flow, token stored in cookie");
-  
   // Build Instagram authorization URL
   requestUrl.searchParams.append("client_id", INSTAGRAM_CLIENT_ID);
   requestUrl.searchParams.append("redirect_uri", `${req.url.split("/authorize")[0]}/callback`);
   requestUrl.searchParams.append("scope", "user_profile,user_media");
   requestUrl.searchParams.append("response_type", "code");
-  
-  // Log the Instagram authorization URL (for debugging)
-  console.log("Redirecting to Instagram auth URL:", requestUrl.toString());
   
   // Redirect to Instagram authorization page
   return new Response(null, {
@@ -91,8 +85,6 @@ async function handleCallback(req: Request, url: URL) {
   const tokenMatch = cookies.match(/instagram_auth_token=([^;]+)/);
   const token = tokenMatch ? tokenMatch[1] : null;
   
-  console.log("Token retrieved from cookie:", token ? "Found" : "Not found");
-  
   if (!token) {
     return new Response(
       JSON.stringify({ error: "Authentication session expired" }),
@@ -115,11 +107,9 @@ async function handleCallback(req: Request, url: URL) {
   }
   
   const userId = userData.user.id;
-  console.log("Verified user ID:", userId);
   
   try {
     // Exchange the code for an access token
-    console.log("Exchanging code for access token");
     const tokenResponse = await fetch(INSTAGRAM_TOKEN_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -148,7 +138,6 @@ async function handleCallback(req: Request, url: URL) {
     }
     
     // Get user profile info
-    console.log("Getting Instagram profile info");
     const profileResponse = await fetch(
       `${INSTAGRAM_GRAPH_URL}/me?fields=id,username&access_token=${tokenData.access_token}`
     );
@@ -162,8 +151,6 @@ async function handleCallback(req: Request, url: URL) {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    
-    console.log("Successfully retrieved Instagram profile:", profileData.username);
     
     // Save the account to the database
     const { data: existingAccount, error: fetchError } = await supabase
@@ -191,7 +178,6 @@ async function handleCallback(req: Request, url: URL) {
     
     if (existingAccount) {
       // Update existing account
-      console.log("Updating existing Instagram account");
       const { error } = await supabase
         .from("social_accounts")
         .update(accountData)
@@ -200,7 +186,6 @@ async function handleCallback(req: Request, url: URL) {
       saveError = error;
     } else {
       // Create new account
-      console.log("Creating new Instagram account");
       const { error } = await supabase
         .from("social_accounts")
         .insert(accountData);
@@ -219,7 +204,6 @@ async function handleCallback(req: Request, url: URL) {
     // Clear the session cookie and redirect back to the app
     const clearCookie = "instagram_auth_token=; Path=/; Max-Age=0";
     
-    console.log("Instagram connection successful, redirecting back to app");
     return new Response(null, {
       status: 302,
       headers: {
