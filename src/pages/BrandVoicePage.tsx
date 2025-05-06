@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { brandVoiceApi } from "@/services/api";
@@ -48,6 +49,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Loader2, Plus, MoreVertical, Edit, Trash, MessageSquare, CheckCheck } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Define the form schema with required fields matching BrandVoice type
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
@@ -55,6 +57,9 @@ const formSchema = z.object({
   examples: z.array(z.string()).min(1, { message: "At least one example is required" }),
   customInstructions: z.string().optional(),
 });
+
+// Define the type for form values to ensure it matches BrandVoice requirements
+type FormValues = z.infer<typeof formSchema>;
 
 const BrandVoicePage = () => {
   const { toast } = useToast();
@@ -138,7 +143,7 @@ const BrandVoicePage = () => {
   });
 
   // Form
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -178,14 +183,23 @@ const BrandVoicePage = () => {
     setDeleteDialogOpen(true);
   };
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
+    // Ensure values match required structure before passing to mutations
+    const brandVoiceData: Omit<BrandVoice, "id" | "userId" | "createdAt" | "updatedAt"> = {
+      name: values.name,
+      description: values.description,
+      toneStyle: values.toneStyle,
+      examples: values.examples,
+      customInstructions: values.customInstructions,
+    };
+
     if (currentVoice) {
       updateVoiceMutation.mutate({
         id: currentVoice.id,
-        data: values,
+        data: brandVoiceData,
       });
     } else {
-      createVoiceMutation.mutate(values);
+      createVoiceMutation.mutate(brandVoiceData);
     }
   };
 
