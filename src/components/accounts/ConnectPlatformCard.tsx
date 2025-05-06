@@ -28,18 +28,18 @@ export function ConnectPlatformCard({
   onConnect,
 }: ConnectPlatformCardProps) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden flex flex-col h-full">
       <CardHeader className={bgClass}>
         <div className="flex items-center space-x-3">
           {icon}
           <CardTitle>{title}</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 flex-grow flex flex-col">
         <p className="text-sm text-muted-foreground mb-4">
           {description}
         </p>
-        <ul className="text-sm space-y-2 mb-4">
+        <ul className="text-sm space-y-2 mb-4 flex-grow">
           {features.map((feature, index) => (
             <li key={index} className="flex items-start">
               <span className="text-primary mr-2">•</span>
@@ -48,7 +48,7 @@ export function ConnectPlatformCard({
           ))}
         </ul>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="mt-auto">
         <Button 
           className="w-full"
           onClick={onConnect}
