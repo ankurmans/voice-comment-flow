@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { socialAccountsApi, brandVoiceApi } from "@/services/api";
@@ -34,7 +33,7 @@ import {
   Instagram,
   RefreshCcw,
   Link2,
-  LinkOff,
+  Link2Off,
   AlertTriangle,
   Loader2,
   Plus,
@@ -258,7 +257,7 @@ const AccountsPage = () => {
                       className="w-full text-destructive hover:text-destructive"
                       onClick={() => openDisconnectDialog(account)}
                     >
-                      <LinkOff className="mr-2 h-4 w-4" />
+                      <Link2Off className="mr-2 h-4 w-4" />
                       Disconnect
                     </Button>
                   </CardFooter>
@@ -276,7 +275,12 @@ const AccountsPage = () => {
               </p>
               <Button 
                 className="mt-4"
-                onClick={() => document.querySelector('button[value="connect"]')?.click()}
+                onClick={() => {
+                  const connectTab = document.querySelector('button[value="connect"]');
+                  if (connectTab) {
+                    (connectTab as HTMLButtonElement).click();
+                  }
+                }}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Connect Account
@@ -447,7 +451,7 @@ const AccountsPage = () => {
                 </>
               ) : (
                 <>
-                  <LinkOff className="mr-2 h-4 w-4" />
+                  <Link2Off className="mr-2 h-4 w-4" />
                   Disconnect
                 </>
               )}
