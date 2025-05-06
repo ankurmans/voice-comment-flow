@@ -26,14 +26,14 @@ export function SidebarMenuItemComponent({
         onClick={onClick}
       >
         {onClick ? (
-          <button type="button">
-            <Icon className="h-5 w-5" />
-            <span>{label}</span>
+          <button type="button" className="flex items-center gap-2 w-full">
+            <Icon className="h-5 w-5 shrink-0" />
+            <span className="truncate">{label}</span>
           </button>
         ) : (
-          <Link to={to}>
-            <Icon className="h-5 w-5" />
-            <span>{label}</span>
+          <Link to={to} className="flex items-center gap-2 w-full">
+            <Icon className="h-5 w-5 shrink-0" />
+            <span className="truncate">{label}</span>
           </Link>
         )}
       </SidebarMenuButton>
