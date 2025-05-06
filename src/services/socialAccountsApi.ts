@@ -50,9 +50,13 @@ export const socialAccountsApi = {
   },
 };
 
-// Add a new export for user data
+// Add exports for user data compliance URLs
 export const userDataApi = {
   // Facebook Data Deletion URL - for reference and documentation
   // This is the URL you'll provide to Facebook for data deletion requests
   getDataDeletionUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/data-deletion`,
+  
+  // Privacy Policy URL - for reference and documentation
+  // This is the URL you'll provide to Facebook for privacy policy requirements
+  getPrivacyPolicyUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/privacy-policy`,
 };

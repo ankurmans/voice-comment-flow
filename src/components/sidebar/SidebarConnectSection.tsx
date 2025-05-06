@@ -2,11 +2,34 @@
 import { Facebook, Instagram } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarSocialItem } from "./SidebarSocialItem";
-import { socialAccountsApi } from "@/services/api";
+import { socialAccountsApi, userDataApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export function SidebarConnectSection() {
   const { toast } = useToast();
+  const location = useLocation();
+
+  // Check for successful connection on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const connected = params.get("connected");
+    const error = params.get("error");
+    
+    if (connected === "instagram") {
+      toast({
+        title: "Instagram Connected",
+        description: "Your Instagram account was successfully connected.",
+      });
+    } else if (error) {
+      toast({
+        variant: "destructive",
+        title: "Connection Error",
+        description: error || "Failed to connect Instagram account.",
+      });
+    }
+  }, [location.search, toast]);
 
   const GoogleIcon = (
     <svg
