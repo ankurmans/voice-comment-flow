@@ -26,10 +26,10 @@ export function AppSidebar() {
         <div className="flex items-center">
           {expanded ? (
             <span className="text-xl font-bold tracking-tight text-primary">
-              ClikClok
+              Driply
             </span>
           ) : (
-            <span className="text-xl font-bold tracking-tight text-primary">CC</span>
+            <span className="text-xl font-bold tracking-tight text-primary">DP</span>
           )}
         </div>
         <Button
