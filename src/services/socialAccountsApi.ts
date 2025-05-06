@@ -59,4 +59,8 @@ export const userDataApi = {
   // Privacy Policy URL - for reference and documentation
   // This is the URL you'll provide to Facebook for privacy policy requirements
   getPrivacyPolicyUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/privacy-policy`,
+  
+  // Deauthorize Callback URL - for reference and documentation
+  // This is the URL you'll provide to Facebook for deauthorization callbacks
+  getDeauthorizeUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/deauthorize`,
 };
