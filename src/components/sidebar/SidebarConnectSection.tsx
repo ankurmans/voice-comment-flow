@@ -2,8 +2,12 @@
 import { Facebook, Instagram } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarSocialItem } from "./SidebarSocialItem";
+import { socialAccountsApi } from "@/services/api";
+import { useToast } from "@/hooks/use-toast";
 
 export function SidebarConnectSection() {
+  const { toast } = useToast();
+
   const GoogleIcon = (
     <svg
       className="h-5 w-5 social-icon social-icon-google"
@@ -19,6 +23,28 @@ export function SidebarConnectSection() {
     </svg>
   );
 
+  const handleFacebookClick = () => {
+    toast({
+      title: "Facebook integration",
+      description: "This is a demo. Facebook integration would require a Facebook Developer account.",
+    });
+  };
+
+  const handleGoogleClick = () => {
+    toast({
+      title: "Google integration",
+      description: "This is a demo. Google integration would require a Google Developer account.",
+    });
+  };
+
+  const handleInstagramClick = () => {
+    toast({
+      title: "Connecting Instagram",
+      description: "Redirecting to Instagram authentication...",
+    });
+    socialAccountsApi.connect("instagram");
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Connect</SidebarGroupLabel>
@@ -28,16 +54,19 @@ export function SidebarConnectSection() {
             to="/accounts?tab=connect"
             icon={<Facebook className="h-5 w-5 social-icon social-icon-facebook" />}
             label="Facebook"
+            onClick={handleFacebookClick}
           />
           <SidebarSocialItem
             to="/accounts?tab=connect"
             icon={<Instagram className="h-5 w-5 social-icon social-icon-instagram" />}
             label="Instagram"
+            onClick={handleInstagramClick}
           />
           <SidebarSocialItem
             to="/accounts?tab=connect"
             icon={GoogleIcon}
             label="Google"
+            onClick={handleGoogleClick}
           />
         </SidebarMenu>
       </SidebarGroupContent>

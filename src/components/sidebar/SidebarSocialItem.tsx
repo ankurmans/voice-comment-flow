@@ -1,18 +1,21 @@
 
-import { useNavigate } from "react-router-dom";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 interface SidebarSocialItemProps {
   to: string;
   icon: React.ReactNode;
   label: string;
+  isExternal?: boolean;
+  onClick?: () => void;
 }
 
-export function SidebarSocialItem({ to, icon, label }: SidebarSocialItemProps) {
-  const navigate = useNavigate();
-  
+export function SidebarSocialItem({ to, icon, label, isExternal, onClick }: SidebarSocialItemProps) {
   const handleClick = () => {
-    navigate(to);
+    if (onClick) {
+      onClick();
+    } else if (isExternal) {
+      window.location.href = to;
+    }
   };
   
   return (

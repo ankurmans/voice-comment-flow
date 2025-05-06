@@ -92,29 +92,31 @@ const AccountsPage = () => {
   // Connect account function
   const connectAccount = (platform: string) => {
     try {
-      toast({
-        title: `Connecting ${platform}`,
-        description: `Redirecting to ${platform} authentication...`,
-      });
-      
       if (platform === "instagram") {
+        toast({
+          title: `Connecting ${platform}`,
+          description: `Redirecting to ${platform} authentication...`,
+        });
+        
         socialAccountsApi.connect(platform);
       } else if (platform === "facebook") {
-        // In a real app, this would use OAuth
-        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
-        // Display mock toast for now
+        // Mock Facebook connection for demo
         toast({
           title: "Facebook integration",
           description: "This is a demo. Facebook integration would require a Facebook Developer account.",
         });
+        
+        // Simulate successful connection for demo
+        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
       } else if (platform === "google") {
         // Mock Google connection for demo
-        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
-        // Display mock toast for now
         toast({
           title: "Google integration",
           description: "This is a demo. Google integration would require a Google Developer account.",
         });
+        
+        // Simulate successful connection for demo
+        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
       }
     } catch (error) {
       console.error(`Error connecting to ${platform}:`, error);
