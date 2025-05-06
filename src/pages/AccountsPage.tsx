@@ -68,14 +68,23 @@ const AccountsPage = () => {
     },
   });
 
-  // Mock OAuth connection - in a real app, this would open an OAuth flow
+  // Updated connect account function to use our Instagram edge function
   const connectAccount = (platform: string) => {
-    toast({
-      title: "Connecting account",
-      description: `Opening ${platform} authentication...`,
-    });
-    // In a real app, this would redirect to OAuth
-    window.open(`/auth/${platform}`, "_blank");
+    if (platform === "instagram") {
+      toast({
+        title: "Connecting Instagram",
+        description: "Redirecting to Instagram authentication...",
+      });
+      
+      socialAccountsApi.connect(platform);
+    } else {
+      toast({
+        title: "Connecting account",
+        description: `Opening ${platform} authentication...`,
+      });
+      // In a real app, this would redirect to OAuth
+      window.open(`/auth/${platform}`, "_blank");
+    }
   };
 
   // Mutations

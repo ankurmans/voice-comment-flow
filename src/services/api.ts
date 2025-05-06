@@ -1,4 +1,3 @@
-
 import { ApiResponse, Comment, Reply, SocialAccount, BrandVoice, GenerationRequest, GenerationResponse } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
@@ -74,10 +73,28 @@ export const socialAccountsApi = {
     return fetchWithAuth<SocialAccount[]>("/accounts");
   },
   
-  connect: async (platform: string, code: string) => {
+  connect: async (platform: string) => {
+    if (platform === "instagram") {
+      // For Instagram, we need to get the auth token and redirect to the edge function
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        return { 
+          error: "You must be logged in to connect an account", 
+          status: "error" as const
+        };
+      }
+      
+      // Redirect to the Instagram auth edge function
+      window.location.href = `https://dedialilbuseilgqgmeh.supabase.co/functions/v1/instagram-auth/authorize`;
+      
+      // This is a redirect, so we don't return a response
+      return { status: "redirect" as const };
+    }
+    
+    // For other platforms, we'll use the mock implementation
     return fetchWithAuth<SocialAccount>("/accounts/connect", {
       method: "POST",
-      body: JSON.stringify({ platform, code }),
+      body: JSON.stringify({ platform }),
     });
   },
   
