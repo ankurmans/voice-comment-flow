@@ -176,7 +176,9 @@ const CommentsPage = () => {
       try {
         const result = await generateRepliesMutation.mutateAsync(comment.id);
         if (result.status === "success" && result.data) {
-          setSuggestedReplies(result.data.suggestions);
+          // Type assertion to ensure we can access the suggestions property
+          const responseData = result.data as GenerationResponse;
+          setSuggestedReplies(responseData.suggestions);
         }
       } finally {
         setLoadingReplies(false);

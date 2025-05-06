@@ -15,7 +15,12 @@ export const repliesApi = {
         return commentResponse;
       }
       
-      const comment = commentResponse.data;
+      // Type assertion to ensure comment has the expected properties
+      const comment = commentResponse.data as {
+        commentContent: string;
+        postContent?: string;
+        commentIntent?: string;
+      };
       
       // Call the Supabase Edge Function
       const { data: functionData, error } = await supabase.functions.invoke("generate-replies", {
