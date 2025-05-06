@@ -33,6 +33,80 @@ serve(async (req) => {
     // Initialize Supabase client with service role key (for admin operations)
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+    // Handle data deletion requests (for Facebook compliance)
+    if (path === "data-deletion") {
+      // This endpoint handles Facebook's Data Deletion Callback
+      // Reference: https://developers.facebook.com/docs/development/create-an-app/app-dashboard/data-deletion-callback
+      
+      // For signed requests from Facebook
+      if (req.method === "POST") {
+        try {
+          const body = await req.json();
+          
+          // Log the deletion request
+          console.log("Data deletion request received:", body);
+          
+          // Here you would implement actual user data deletion logic
+          // This might include removing user records, preferences, etc.
+          
+          // For user_id, you'd typically use the Instagram user ID
+          const instagramUserId = body.user_id;
+          if (instagramUserId) {
+            // Example: Find and delete user data in your database
+            // const { error } = await supabase
+            //   .from('social_accounts')
+            //   .delete()
+            //   .eq('account_id', instagramUserId);
+            
+            // For now just log this - implement actual deletion as needed
+            console.log(`Would delete data for Instagram user: ${instagramUserId}`);
+          }
+          
+          // Facebook expects a JSON response with a confirmation_code
+          return new Response(
+            JSON.stringify({
+              confirmation_code: crypto.randomUUID(),
+              url: req.url, // Echo back the URL that was hit
+            }),
+            {
+              status: 200,
+              headers: {
+                ...corsHeaders,
+                "Content-Type": "application/json"
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error processing deletion request:", error);
+          return new Response(
+            JSON.stringify({ error: "Invalid request format" }),
+            {
+              status: 400,
+              headers: {
+                ...corsHeaders,
+                "Content-Type": "application/json"
+              }
+            }
+          );
+        }
+      }
+      
+      // For GET requests (Facebook checking if the endpoint is valid)
+      return new Response(
+        JSON.stringify({ 
+          message: "This endpoint handles user data deletion requests from Facebook",
+          status: "active"
+        }),
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
+    
     // Route to initiate the Instagram OAuth flow
     if (path === "authorize") {
       const requestUrl = new URL(INSTAGRAM_AUTH_URL);

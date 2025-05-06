@@ -1,6 +1,8 @@
 import { ApiResponse, Comment, Reply, SocialAccount, BrandVoice, GenerationRequest, GenerationResponse } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// Add the base URL for our Supabase Edge Function
+const EDGE_FUNCTION_URL = "https://dedialilbuseilgqgmeh.supabase.co/functions/v1";
 
 // Create fetch utility with error handling and authentication
 const fetchWithAuth = async <T>(
@@ -85,7 +87,7 @@ export const socialAccountsApi = {
       }
       
       // Redirect to the Instagram auth edge function
-      window.location.href = `https://dedialilbuseilgqgmeh.supabase.co/functions/v1/instagram-auth/authorize`;
+      window.location.href = `${EDGE_FUNCTION_URL}/instagram-auth/authorize`;
       
       // This is a redirect, so we don't return a response
       return { status: "redirect" as const };
@@ -218,4 +220,11 @@ export const analyticsApi = {
   getEngagementMetrics: async (period: string = "week") => {
     return fetchWithAuth<any>(`/analytics/engagement?period=${period}`);
   },
+};
+
+// Add a new export for user data
+export const userDataApi = {
+  // Facebook Data Deletion URL - for reference and documentation
+  // This is the URL you'll provide to Facebook for data deletion requests
+  getDataDeletionUrl: () => `${EDGE_FUNCTION_URL}/instagram-auth/data-deletion`,
 };

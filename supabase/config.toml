@@ -53,4 +53,5 @@ trusted_cors_origin = "*"
 
 [functions]
 [functions.instagram-auth]
-verify_jwt = true
+verify_jwt = false
+
