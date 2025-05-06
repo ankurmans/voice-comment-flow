@@ -3,18 +3,24 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { brandVoiceApi } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { BrandVoice } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const useBrandVoices = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   // Query brand voices
   const { data: brandVoices, isLoading } = useQuery({
     queryKey: ["brand-voices"],
     queryFn: async () => {
       const response = await brandVoiceApi.getAll();
+      if (response.status === "error") {
+        throw new Error(response.error);
+      }
       return response.data || [];
     },
+    enabled: isAuthenticated,
   });
 
   // Create mutation
@@ -30,6 +36,7 @@ export const useBrandVoices = () => {
       queryClient.invalidateQueries({ queryKey: ["brand-voices"] });
     },
     onError: (error) => {
+      console.error("Create voice error:", error);
       toast({
         variant: "destructive",
         title: "Failed to create",
@@ -40,7 +47,7 @@ export const useBrandVoices = () => {
 
   // Update mutation
   const updateVoiceMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<BrandVoice, "id" | "userId" | "createdAt" | "updatedAt"> }) => {
+    mutationFn: ({ id, data }: { id: string; data: Partial<BrandVoice> }) => {
       return brandVoiceApi.update(id, data);
     },
     onSuccess: () => {
@@ -51,6 +58,7 @@ export const useBrandVoices = () => {
       queryClient.invalidateQueries({ queryKey: ["brand-voices"] });
     },
     onError: (error) => {
+      console.error("Update voice error:", error);
       toast({
         variant: "destructive",
         title: "Failed to update",
@@ -72,6 +80,7 @@ export const useBrandVoices = () => {
       queryClient.invalidateQueries({ queryKey: ["brand-voices"] });
     },
     onError: (error) => {
+      console.error("Delete voice error:", error);
       toast({
         variant: "destructive",
         title: "Failed to delete",

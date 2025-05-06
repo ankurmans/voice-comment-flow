@@ -3,8 +3,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { SocialAccount } from "@/types";
-import { socialAccountsApi, brandVoiceApi } from "@/services/api";
+import { socialAccountsApi } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useAccounts = () => {
   const { toast } = useToast();
@@ -30,8 +31,18 @@ export const useAccounts = () => {
   const { data: brandVoices, isLoading: isLoadingBrandVoices } = useQuery({
     queryKey: ["brand-voices"],
     queryFn: async () => {
-      const response = await brandVoiceApi.getAll();
-      return response.data || [];
+      try {
+        const { data, error } = await supabase
+          .from('brand_voices')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error("Error fetching brand voices:", error);
+        return [];
+      }
     },
     enabled: isAuthenticated, // Only run the query if the user is authenticated
   });
