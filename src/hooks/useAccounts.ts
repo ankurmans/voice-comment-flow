@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -42,20 +41,11 @@ export const useAccounts = () => {
         });
         
         socialAccountsApi.connect(platform);
-      } else if (platform === "facebook") {
-        // Mock Facebook connection for demo
+      } else {
+        // Mock connection for demo platforms
         toast({
-          title: "Facebook integration",
-          description: "This is a demo. Facebook integration would require a Facebook Developer account.",
-        });
-        
-        // Simulate successful connection for demo
-        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
-      } else if (platform === "google") {
-        // Mock Google connection for demo
-        toast({
-          title: "Google integration",
-          description: "This is a demo. Google integration would require a Google Developer account.",
+          title: `${platform} integration`,
+          description: `This is a demo. ${platform} integration would require a ${platform} Developer account.`,
         });
         
         // Simulate successful connection for demo
