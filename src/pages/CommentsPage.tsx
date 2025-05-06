@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { commentsApi, repliesApi, socialAccountsApi } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
-import { Comment, Reply, SocialAccount } from "@/types";
+import { Comment, Reply, SocialAccount, GenerationResponse } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
