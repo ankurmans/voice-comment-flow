@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { commentsApi, socialAccountsApi } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GenerationResponse } from "@/types";
 import CommentsList from "@/components/comments/CommentsList";
 import CommentsFilter from "@/components/comments/CommentsFilter";
 
