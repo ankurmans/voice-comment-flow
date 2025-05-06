@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { commentsApi, repliesApi, socialAccountsApi } from "@/services/api";
@@ -436,7 +435,7 @@ const CommentsPage = () => {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Platforms</SelectLabel>
-                <SelectItem value="">All platforms</SelectItem>
+                <SelectItem value="all">All platforms</SelectItem>
                 <SelectItem value="facebook">Facebook</SelectItem>
                 <SelectItem value="instagram">Instagram</SelectItem>
                 <SelectItem value="google">Google</SelectItem>
@@ -454,7 +453,7 @@ const CommentsPage = () => {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Accounts</SelectLabel>
-                <SelectItem value="">All accounts</SelectItem>
+                <SelectItem value="all">All accounts</SelectItem>
                 {accounts?.map((account: SocialAccount) => (
                   <SelectItem key={account.id} value={account.id}>
                     {account.accountName}

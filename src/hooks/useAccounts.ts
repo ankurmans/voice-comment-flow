@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -13,7 +14,7 @@ export const useAccounts = () => {
   const [accountToDisconnect, setAccountToDisconnect] = useState<SocialAccount | null>(null);
   const [brandVoiceDialogOpen, setBrandVoiceDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<SocialAccount | null>(null);
-  const [selectedBrandVoiceId, setSelectedBrandVoiceId] = useState<string>("");
+  const [selectedBrandVoiceId, setSelectedBrandVoiceId] = useState<string>("none");
 
   // Query social accounts
   const { data: accounts, isLoading: isLoadingAccounts } = useQuery({
@@ -134,7 +135,7 @@ export const useAccounts = () => {
 
   const openBrandVoiceDialog = (account: SocialAccount) => {
     setSelectedAccount(account);
-    setSelectedBrandVoiceId(account.brandVoiceId || "");
+    setSelectedBrandVoiceId(account.brandVoiceId || "none");
     setBrandVoiceDialogOpen(true);
   };
 
@@ -142,7 +143,7 @@ export const useAccounts = () => {
     if (selectedAccount) {
       updateBrandVoiceMutation.mutate({
         accountId: selectedAccount.id,
-        brandVoiceId: selectedBrandVoiceId,
+        brandVoiceId: selectedBrandVoiceId !== "none" ? selectedBrandVoiceId : "",
       });
     }
   };

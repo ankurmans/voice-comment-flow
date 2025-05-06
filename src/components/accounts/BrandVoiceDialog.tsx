@@ -75,7 +75,7 @@ export function BrandVoiceDialog({
               <SelectValue placeholder="Select a brand voice" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">None</SelectItem>
+              <SelectItem value="none">None</SelectItem>
               {brandVoices.map((voice: BrandVoice) => (
                 <SelectItem key={voice.id} value={voice.id}>
                   {voice.name}
