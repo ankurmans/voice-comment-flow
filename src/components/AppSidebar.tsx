@@ -40,7 +40,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar expanded={expanded} onExpandedChange={setExpanded}>
+    <Sidebar>
       <SidebarHeader className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center">
           {expanded ? (
@@ -66,7 +66,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem isActive={isActive("/dashboard")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/dashboard">
                     <Activity className="h-5 w-5" />
@@ -74,7 +74,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem isActive={isActive("/comments")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/comments">
                     <MessageSquareText className="h-5 w-5" />
@@ -82,7 +82,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem isActive={isActive("/analytics")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/analytics">
                     <BarChart3 className="h-5 w-5" />
@@ -98,7 +98,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Accounts</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem isActive={isActive("/accounts")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/accounts">
                     <Users className="h-5 w-5" />
@@ -106,7 +106,7 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem isActive={isActive("/brand-voice")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/brand-voice">
                     <PlusCircle className="h-5 w-5" />
@@ -168,7 +168,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem isActive={isActive("/settings")}>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/settings">
                     <Settings className="h-5 w-5" />

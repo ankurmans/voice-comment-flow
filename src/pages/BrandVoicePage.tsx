@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { brandVoiceApi } from "@/services/api";
@@ -97,7 +96,7 @@ const BrandVoicePage = () => {
   });
 
   const updateVoiceMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<BrandVoice> }) => {
+    mutationFn: ({ id, data }: { id: string; data: Omit<BrandVoice, "id" | "userId" | "createdAt" | "updatedAt"> }) => {
       return brandVoiceApi.update(id, data);
     },
     onSuccess: () => {
