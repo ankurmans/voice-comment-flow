@@ -38,11 +38,31 @@ export function SidebarConnectSection() {
   };
 
   const handleInstagramClick = () => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You must be logged in to connect Instagram",
+      });
+      return;
+    }
+    
     toast({
       title: "Connecting Instagram",
       description: "Redirecting to Instagram authentication...",
     });
-    socialAccountsApi.connect("instagram");
+    
+    try {
+      socialAccountsApi.connect("instagram");
+    } catch (error) {
+      console.error("Instagram connection error:", error);
+      toast({
+        variant: "destructive",
+        title: "Connection error",
+        description: "Failed to connect to Instagram. Please try again later.",
+      });
+    }
   };
 
   return (

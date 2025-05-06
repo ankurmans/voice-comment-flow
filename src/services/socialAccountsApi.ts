@@ -21,8 +21,9 @@ export const socialAccountsApi = {
         };
       }
       
-      // Directly redirect to the Instagram auth edge function with the token in the header
-      window.location.href = `${EDGE_FUNCTION_URL}/instagram-auth/authorize`;
+      // Redirect to the Instagram auth edge function with the token in the URL
+      // This is a more reliable way to pass the token
+      window.location.href = `${EDGE_FUNCTION_URL}/instagram-auth/authorize?token=${encodeURIComponent(token)}`;
       
       // This is a redirect, so we don't return a response
       return { status: "redirect" as const };
