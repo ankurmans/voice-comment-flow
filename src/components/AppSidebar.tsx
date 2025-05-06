@@ -26,7 +26,7 @@ export function AppSidebar() {
         <div className="flex items-center">
           {expanded ? (
             <span className="text-xl font-bold tracking-tight text-primary">
-              CommentCrafter
+              ClikClok
             </span>
           ) : (
             <span className="text-xl font-bold tracking-tight text-primary">CC</span>
