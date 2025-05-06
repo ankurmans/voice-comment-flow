@@ -1,5 +1,7 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 import { socialAccountsApi, brandVoiceApi } from "@/services/api";
 import { useToast } from "@/components/ui/use-toast";
 import { SocialAccount, BrandVoice } from "@/types";
@@ -43,12 +45,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const AccountsPage = () => {
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [disconnectDialogOpen, setDisconnectDialogOpen] = useState(false);
   const [accountToDisconnect, setAccountToDisconnect] = useState<SocialAccount | null>(null);
   const [brandVoiceDialogOpen, setBrandVoiceDialogOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<SocialAccount | null>(null);
   const [selectedBrandVoiceId, setSelectedBrandVoiceId] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("connected");
+
+  // Set the active tab based on URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get("tab");
+    if (tabParam === "connect") {
+      setActiveTab("connect");
+    }
+  }, [location.search]);
 
   // Query social accounts
   const { data: accounts, isLoading: isLoadingAccounts } = useQuery({
@@ -68,22 +82,47 @@ const AccountsPage = () => {
     },
   });
 
-  // Updated connect account function to use our Instagram edge function
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without full page refresh
+    navigate(`/accounts${value === "connect" ? "?tab=connect" : ""}`, { replace: true });
+  };
+
+  // Connect account function
   const connectAccount = (platform: string) => {
-    if (platform === "instagram") {
+    try {
       toast({
-        title: "Connecting Instagram",
-        description: "Redirecting to Instagram authentication...",
+        title: `Connecting ${platform}`,
+        description: `Redirecting to ${platform} authentication...`,
       });
       
-      socialAccountsApi.connect(platform);
-    } else {
+      if (platform === "instagram") {
+        socialAccountsApi.connect(platform);
+      } else if (platform === "facebook") {
+        // In a real app, this would use OAuth
+        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
+        // Display mock toast for now
+        toast({
+          title: "Facebook integration",
+          description: "This is a demo. Facebook integration would require a Facebook Developer account.",
+        });
+      } else if (platform === "google") {
+        // Mock Google connection for demo
+        window.location.href = `${window.location.origin}/accounts?connected=${platform}`;
+        // Display mock toast for now
+        toast({
+          title: "Google integration",
+          description: "This is a demo. Google integration would require a Google Developer account.",
+        });
+      }
+    } catch (error) {
+      console.error(`Error connecting to ${platform}:`, error);
       toast({
-        title: "Connecting account",
-        description: `Opening ${platform} authentication...`,
+        variant: "destructive",
+        title: `Connection to ${platform} failed`,
+        description: "Please try again later",
       });
-      // In a real app, this would redirect to OAuth
-      window.open(`/auth/${platform}`, "_blank");
     }
   };
 
@@ -199,7 +238,7 @@ const AccountsPage = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="connected">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="connected">Connected Accounts</TabsTrigger>
           <TabsTrigger value="connect">Connect New Account</TabsTrigger>

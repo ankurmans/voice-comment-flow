@@ -25,17 +25,17 @@ export function SidebarConnectSection() {
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarSocialItem
-            to="/accounts/connect/facebook"
+            to="/accounts?tab=connect"
             icon={<Facebook className="h-5 w-5 social-icon social-icon-facebook" />}
             label="Facebook"
           />
           <SidebarSocialItem
-            to="/accounts/connect/instagram"
+            to="/accounts?tab=connect"
             icon={<Instagram className="h-5 w-5 social-icon social-icon-instagram" />}
             label="Instagram"
           />
           <SidebarSocialItem
-            to="/accounts/connect/google"
+            to="/accounts?tab=connect"
             icon={GoogleIcon}
             label="Google"
           />

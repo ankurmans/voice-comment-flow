@@ -1,6 +1,5 @@
 
-import { Link } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 interface SidebarSocialItemProps {
@@ -10,15 +9,19 @@ interface SidebarSocialItemProps {
 }
 
 export function SidebarSocialItem({ to, icon, label }: SidebarSocialItemProps) {
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate(to);
+  };
+  
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild>
-        <Link to={to}>
-          <div className="flex items-center space-x-3">
-            {icon}
-            <span>{label}</span>
-          </div>
-        </Link>
+      <SidebarMenuButton onClick={handleClick}>
+        <div className="flex items-center space-x-3">
+          {icon}
+          <span>{label}</span>
+        </div>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
