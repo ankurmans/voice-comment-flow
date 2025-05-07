@@ -3,7 +3,7 @@
 // Each service is implemented in its own file for better organization
 
 export { authApi } from "./authApi";
-export { socialAccountsApi, userDataApi } from "./socialAccountsApi";
+export { socialAccountsApi } from "./socialAccountsApi";
 export { commentsApi } from "./commentsApi";
 export { repliesApi } from "./repliesApi";
 export { brandVoiceApi } from "./brandVoiceApi";

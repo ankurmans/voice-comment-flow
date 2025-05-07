@@ -14,16 +14,39 @@ export const socialAccountsApi = {
     // return fetchWithAuth("/social-accounts");
   },
   
-  connect: async (platform: string, code: string) => {
-    return fetchWithAuth("/social-accounts/connect", {
-      method: "POST",
-      body: JSON.stringify({ platform, code }),
-    });
+  connect: async (platform: string) => {
+    // For demo purposes, simulate a successful connection
+    console.log(`Connecting to ${platform}...`);
+    return {
+      status: "success",
+      data: { message: `Connected to ${platform}` }
+    };
+    
+    // Real API call (commented out for now)
+    // return fetchWithAuth("/social-accounts/connect", {
+    //   method: "POST",
+    //   body: JSON.stringify({ platform, code }),
+    // });
   },
   
   disconnect: async (accountId: string) => {
     return fetchWithAuth(`/social-accounts/${accountId}/disconnect`, {
       method: "POST",
     });
+  },
+
+  updateBrandVoice: async (accountId: string, brandVoiceId: string) => {
+    // For demo purposes, simulate a successful update
+    console.log(`Updating brand voice for account ${accountId} to ${brandVoiceId}`);
+    return {
+      status: "success",
+      data: { message: "Brand voice updated successfully" }
+    };
+    
+    // Real API call (commented out for now)
+    // return fetchWithAuth(`/social-accounts/${accountId}/brand-voice`, {
+    //   method: "PATCH",
+    //   body: JSON.stringify({ brandVoiceId }),
+    // });
   }
 };

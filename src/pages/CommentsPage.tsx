@@ -1,121 +1,132 @@
 
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { commentsApi, socialAccountsApi } from "@/services/api";
-import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GenerationResponse } from "@/types";
-import CommentsList from "@/components/comments/CommentsList";
-import CommentsFilter from "@/components/comments/CommentsFilter";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2, RefreshCw } from "lucide-react";
+import { CommentsFilter } from "@/components/comments/CommentsFilter";
+import { CommentsList } from "@/components/comments/CommentsList";
+import { EmptyComments } from "@/components/comments/EmptyComments";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { commentsApi } from "@/services/api";
 
-const CommentsPage = () => {
+export default function CommentsPage() {
   const { toast } = useToast();
-  const [selectedTab, setSelectedTab] = useState<string>("pending");
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState({
-    platform: "",
-    accountId: "",
-    search: "",
+    status: "pending",
+    platform: "all",
+    limit: 20,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
-  // Query for comments with current filters
+  // Fetch comments based on filters
   const {
     data: commentsData,
-    isLoading: isLoadingComments,
-    refetch: refetchComments,
+    isLoading,
+    isError,
   } = useQuery({
-    queryKey: ["comments", selectedTab, filters, currentPage],
+    queryKey: ["comments", filters],
     queryFn: async () => {
-      const response = await commentsApi.getAll({
-        status: selectedTab,
-        platform: filters.platform,
-        accountId: filters.accountId,
-        page: currentPage,
-        limit: itemsPerPage,
-      });
-      return response.data || { comments: [], total: 0, page: 1 };
-    },
-  });
-
-  // Query for social accounts
-  const { data: accounts } = useQuery({
-    queryKey: ["social-accounts"],
-    queryFn: async () => {
-      const response = await socialAccountsApi.getAll();
-      return response.data || [];
+      const response = await commentsApi.getAll(filters);
+      if (response.status === "error") {
+        throw new Error(response.error);
+      }
+      return response.data;
     },
   });
 
   // Sync comments mutation
-  const syncCommentsMutation = useMutation({
+  const syncMutation = useMutation({
     mutationFn: () => {
-      return commentsApi.sync(filters.accountId || undefined);
+      return commentsApi.sync();
     },
-    onSuccess: (data) => {
-      if (data.status === "success" && data.data) {
+    onSuccess: (response) => {
+      if (response.status === "success") {
         toast({
           title: "Comments synced",
-          description: `${data.data.count} new comments retrieved`,
+          description: `${response.data.newComments} new comments were found.`,
         });
-        refetchComments();
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Sync failed",
-          description: data.error || "Could not sync comments",
-        });
+        queryClient.invalidateQueries({ queryKey: ["comments"] });
       }
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Sync failed",
+        description: "There was an error syncing your comments.",
+      });
     },
   });
 
-  const handleSyncComments = () => {
-    syncCommentsMutation.mutate();
+  // Handle filter changes
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters({ ...filters, ...newFilters });
   };
 
+  const handleSync = () => {
+    syncMutation.mutate();
+  };
+
+  // Render empty state if no comments
+  if (!isLoading && !isError && commentsData?.comments.length === 0) {
+    return (
+      <div className="container mx-auto py-10">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold tracking-tight">Comments</h1>
+          <Button onClick={handleSync} disabled={syncMutation.isPending}>
+            {syncMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-2 h-4 w-4" /> Sync Comments
+              </>
+            )}
+          </Button>
+        </div>
+        <EmptyComments />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col space-y-6 p-6">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold">Comments</h1>
-        <p className="text-muted-foreground">
-          Manage and respond to comments from all your connected platforms
-        </p>
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight">Comments</h1>
+          {!isLoading && !isError && commentsData && (
+            <Badge variant="secondary" className="ml-2">
+              {commentsData.totalCount} total
+            </Badge>
+          )}
+        </div>
+        <Button onClick={handleSync} disabled={syncMutation.isPending}>
+          {syncMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" /> Sync Comments
+            </>
+          )}
+        </Button>
       </div>
 
-      {/* Filters and Actions */}
-      <CommentsFilter 
-        filters={filters}
-        setFilters={setFilters}
-        accounts={accounts}
-        onSync={handleSyncComments}
-        isSyncing={syncCommentsMutation.isPending}
-      />
+      <CommentsFilter filters={filters} onFilterChange={handleFilterChange} />
 
-      {/* Comments Tabs */}
-      <Tabs defaultValue="pending" value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="replied">Replied</TabsTrigger>
-          <TabsTrigger value="skipped">Skipped</TabsTrigger>
-          <TabsTrigger value="flagged">Flagged</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value={selectedTab} className="mt-6">
-          <CommentsList
-            comments={commentsData?.comments}
-            status={selectedTab}
-            isLoading={isLoadingComments}
-            totalComments={commentsData?.total || 0}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-            onSync={handleSyncComments}
-            onCommentUpdated={refetchComments}
-          />
-        </TabsContent>
-      </Tabs>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : isError ? (
+        <div className="bg-destructive/10 text-destructive p-4 rounded-md">
+          There was an error loading your comments.
+        </div>
+      ) : (
+        <CommentsList comments={commentsData.comments} />
+      )}
     </div>
   );
-};
-
-export default CommentsPage;
+}
