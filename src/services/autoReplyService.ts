@@ -4,6 +4,14 @@ import { repliesApi } from "./api";
 import { commentsApi } from "./api";
 import { useToast } from "@/hooks/use-toast";
 
+// Define the reply suggestion response type
+interface ReplySuggestionResponse {
+  status: string;
+  data?: {
+    suggestions?: string[];
+  };
+}
+
 // Comment categories for auto-reply matching
 const COMMENT_CATEGORIES = {
   THANK_YOU: "thank_you",
@@ -125,7 +133,7 @@ export const processCommentsForAutoReply = async (
           maxLength: 280,
           temperature: 0.7
         }
-      });
+      }) as ReplySuggestionResponse;
       
       if (replyResponse.status !== "success" || !replyResponse.data?.suggestions?.length) {
         continue;

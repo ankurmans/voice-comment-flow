@@ -42,14 +42,16 @@ export default function CommentsPage() {
         console.error("Error fetching auto-reply settings:", error);
         return null;
       }
-    },
-    onSuccess: (data) => {
-      if (data) {
-        setAutoReplySettings(data);
-        setAutoReplyEnabled(data.enabled);
-      }
     }
   });
+
+  // Set the auto-reply settings when data is loaded
+  useEffect(() => {
+    if (settingsData) {
+      setAutoReplySettings(settingsData);
+      setAutoReplyEnabled(settingsData.enabled);
+    }
+  }, [settingsData]);
 
   // Fetch comments based on filters
   const {

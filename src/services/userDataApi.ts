@@ -48,5 +48,10 @@ export const userDataApi = {
       method: "PUT",
       body: JSON.stringify(preferences),
     });
+  },
+
+  // Get privacy policy URL
+  getPrivacyPolicyUrl: () => {
+    return "https://www.privacypolicy.com"; // Replace with actual policy URL
   }
 };
