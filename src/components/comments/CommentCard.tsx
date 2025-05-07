@@ -20,9 +20,10 @@ import { useToast } from "@/hooks/use-toast";
 
 type CommentCardProps = {
   comment: Comment;
+  onCommentUpdated: () => void;
 };
 
-export function CommentCard({ comment }: CommentCardProps) {
+export function CommentCard({ comment, onCommentUpdated }: CommentCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,6 +36,7 @@ export function CommentCard({ comment }: CommentCardProps) {
     facebook: "bg-blue-600 hover:bg-blue-700",
     tiktok: "bg-black hover:bg-gray-800",
     default: "bg-gray-600 hover:bg-gray-700",
+    google: "bg-red-500 hover:bg-red-600",
   };
 
   // Status badge color mapping
@@ -43,6 +45,8 @@ export function CommentCard({ comment }: CommentCardProps) {
     approved: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
     rejected: "bg-red-500/10 text-red-500 hover:bg-red-500/20",
     replied: "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20",
+    skipped: "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20",
+    flagged: "bg-orange-500/10 text-orange-500 hover:bg-orange-500/20",
     default: "bg-gray-500/10 text-gray-500 hover:bg-gray-500/20",
   };
 
@@ -57,6 +61,7 @@ export function CommentCard({ comment }: CommentCardProps) {
         title: "Status updated",
         description: "Comment status has been updated successfully.",
       });
+      onCommentUpdated();
     },
     onError: () => {
       toast({
@@ -71,6 +76,12 @@ export function CommentCard({ comment }: CommentCardProps) {
     statusMutation.mutate({ commentId: comment.id, status });
   };
 
+  // Extract author name from commentAuthor property
+  const authorName = comment.commentAuthor || "Anonymous";
+  const commentContent = comment.commentContent || "";
+  // Calculate reply count (if exists) or default to 0
+  const replyCount = 0; // Since replies aren't implemented yet, default to 0
+
   return (
     <Card className="mb-4 overflow-hidden">
       <div className="p-4">
@@ -78,14 +89,14 @@ export function CommentCard({ comment }: CommentCardProps) {
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center">
             <Avatar className="h-8 w-8 mr-2">
-              <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
-              <AvatarFallback>{comment.author.name.charAt(0)}</AvatarFallback>
+              <AvatarImage src={`https://i.pravatar.cc/150?u=${comment.commentAuthorId}`} alt={authorName} />
+              <AvatarFallback>{authorName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium text-sm">{comment.author.name}</p>
+              <p className="font-medium text-sm">{authorName}</p>
               <div className="flex items-center text-xs text-muted-foreground">
                 <Clock className="h-3 w-3 mr-1" />
-                <span>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</span>
+                <span>{formatDistanceToNow(new Date(comment.commentTimestamp), { addSuffix: true })}</span>
               </div>
             </div>
           </div>
@@ -109,11 +120,11 @@ export function CommentCard({ comment }: CommentCardProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleStatusUpdate("approved")}>
-                  Approve
+                <DropdownMenuItem onClick={() => handleStatusUpdate("replied")}>
+                  Mark as Replied
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleStatusUpdate("rejected")}>
-                  Reject
+                <DropdownMenuItem onClick={() => handleStatusUpdate("skipped")}>
+                  Skip
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Generate Reply</DropdownMenuItem>
@@ -124,9 +135,9 @@ export function CommentCard({ comment }: CommentCardProps) {
 
         {/* Comment content */}
         <div className={`text-sm ${isExpanded ? "" : "line-clamp-3"}`}>
-          {comment.content}
+          {commentContent}
         </div>
-        {comment.content.length > 150 && (
+        {commentContent.length > 150 && (
           <Button
             variant="link"
             className="p-0 h-auto text-xs mt-1"
@@ -141,9 +152,9 @@ export function CommentCard({ comment }: CommentCardProps) {
           <div className="flex items-center text-xs text-muted-foreground">
             <MessageSquare className="h-3 w-3 mr-1" />
             <span>
-              {comment.replyCount === 1
+              {replyCount === 1
                 ? "1 reply"
-                : `${comment.replyCount} replies`}
+                : `${replyCount} replies`}
             </span>
           </div>
           <div className="flex space-x-2">

@@ -16,8 +16,13 @@ export default function CommentsPage() {
   const [filters, setFilters] = useState({
     status: "pending",
     platform: "all",
+    accountId: "all",
+    search: "",
     limit: 20,
   });
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch comments based on filters
   const {
@@ -25,11 +30,11 @@ export default function CommentsPage() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["comments", filters],
+    queryKey: ["comments", filters, currentPage],
     queryFn: async () => {
       const response = await commentsApi.getAll(filters);
       if (response.status === "error") {
-        throw new Error(response.error);
+        throw new Error("Failed to load comments");
       }
       return response.data;
     },
@@ -49,7 +54,7 @@ export default function CommentsPage() {
         queryClient.invalidateQueries({ queryKey: ["comments"] });
       }
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         variant: "destructive",
         title: "Sync failed",
@@ -61,10 +66,19 @@ export default function CommentsPage() {
   // Handle filter changes
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters({ ...filters, ...newFilters });
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const handleSync = () => {
     syncMutation.mutate();
+  };
+  
+  const handleCommentUpdated = () => {
+    queryClient.invalidateQueries({ queryKey: ["comments"] });
+  };
+  
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   // Render empty state if no comments
@@ -85,7 +99,7 @@ export default function CommentsPage() {
             )}
           </Button>
         </div>
-        <EmptyComments />
+        <EmptyComments status={filters.status} onSync={handleSync} />
       </div>
     );
   }
@@ -125,7 +139,17 @@ export default function CommentsPage() {
           There was an error loading your comments.
         </div>
       ) : (
-        <CommentsList comments={commentsData.comments} />
+        <CommentsList 
+          comments={commentsData.comments}
+          status={filters.status}
+          isLoading={isLoading}
+          totalComments={commentsData.totalCount}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+          onSync={handleSync}
+          onCommentUpdated={handleCommentUpdated}
+        />
       )}
     </div>
   );

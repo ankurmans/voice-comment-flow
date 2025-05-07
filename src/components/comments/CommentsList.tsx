@@ -2,7 +2,7 @@
 import { Comment } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import CommentCard from "./CommentCard";
+import { CommentCard } from "./CommentCard";
 import EmptyComments from "./EmptyComments";
 
 interface CommentsListProps {

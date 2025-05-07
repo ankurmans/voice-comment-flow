@@ -1,34 +1,28 @@
 
 import { Button } from "@/components/ui/button";
-import { Filter, RefreshCcw } from "lucide-react";
+import { MessageSquareOff, RefreshCw } from "lucide-react";
 
-interface EmptyCommentsProps {
+export interface EmptyCommentsProps {
   status: string;
   onSync: () => void;
 }
 
-export const EmptyComments = ({ status, onSync }: EmptyCommentsProps) => {
+export function EmptyComments({ status, onSync }: EmptyCommentsProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8 mt-4">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-        <Filter className="h-10 w-10 text-muted-foreground" />
-      </div>
-      <h3 className="mt-4 text-lg font-semibold">No comments found</h3>
-      <p className="mt-2 text-center text-sm text-muted-foreground">
+    <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/40 rounded-lg">
+      <MessageSquareOff className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="font-medium text-lg mb-2">No {status} comments</h3>
+      <p className="text-muted-foreground mb-4">
         {status === "pending"
-          ? "You've responded to all comments! Sync to check for new ones."
-          : `No ${status} comments match your current filters.`}
+          ? "There are no pending comments waiting for your attention."
+          : `There are currently no ${status} comments.`}
       </p>
-      <Button 
-        variant="outline" 
-        className="mt-4"
-        onClick={onSync}
-      >
-        <RefreshCcw className="mr-2 h-4 w-4" />
+      <Button onClick={onSync}>
+        <RefreshCw className="h-4 w-4 mr-2" />
         Sync Comments
       </Button>
     </div>
   );
-};
+}
 
 export default EmptyComments;
