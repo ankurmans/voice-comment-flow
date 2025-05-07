@@ -128,7 +128,12 @@ export default function CommentsPage() {
         </Button>
       </div>
 
-      <CommentsFilter filters={filters} onFilterChange={handleFilterChange} />
+      <CommentsFilter 
+        filters={filters} 
+        onFilterChange={handleFilterChange} 
+        onSync={handleSync}
+        isSyncing={syncMutation.isPending}
+      />
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">

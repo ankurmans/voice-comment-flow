@@ -152,7 +152,9 @@ export function CommentCard({ comment, onCommentUpdated }: CommentCardProps) {
           <div className="flex items-center text-xs text-muted-foreground">
             <MessageSquare className="h-3 w-3 mr-1" />
             <span>
-              {replyCount === 1
+              {replyCount === 0
+                ? "No replies"
+                : replyCount === 1
                 ? "1 reply"
                 : `${replyCount} replies`}
             </span>
@@ -167,3 +169,5 @@ export function CommentCard({ comment, onCommentUpdated }: CommentCardProps) {
     </Card>
   );
 }
+
+export default CommentCard;
