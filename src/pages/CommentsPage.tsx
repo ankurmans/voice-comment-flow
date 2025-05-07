@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RefreshCw } from "lucide-react";
 import { CommentsFilter } from "@/components/comments/CommentsFilter";
@@ -8,7 +8,9 @@ import { EmptyComments } from "@/components/comments/EmptyComments";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { commentsApi } from "@/services/api";
+import { commentsApi, repliesApi } from "@/services/api";
+import { userDataApi } from "@/services/userDataApi";
+import { processCommentsForAutoReply } from "@/services/autoReplyService";
 
 export default function CommentsPage() {
   const { toast } = useToast();
@@ -23,6 +25,31 @@ export default function CommentsPage() {
   
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [autoReplyEnabled, setAutoReplyEnabled] = useState(false);
+  const [autoReplySettings, setAutoReplySettings] = useState(null);
+
+  // Fetch auto-reply settings
+  const {
+    data: settingsData,
+    isLoading: isLoadingSettings,
+  } = useQuery({
+    queryKey: ["autoReplySettings"],
+    queryFn: async () => {
+      try {
+        const response = await userDataApi.getAutoReplySettings();
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching auto-reply settings:", error);
+        return null;
+      }
+    },
+    onSuccess: (data) => {
+      if (data) {
+        setAutoReplySettings(data);
+        setAutoReplyEnabled(data.enabled);
+      }
+    }
+  });
 
   // Fetch comments based on filters
   const {
@@ -39,6 +66,35 @@ export default function CommentsPage() {
       return response.data;
     },
   });
+
+  // Process comments for auto-replies when they change or settings change
+  useEffect(() => {
+    if (commentsData?.comments && autoReplySettings && autoReplyEnabled) {
+      // Only process pending comments for auto-replies
+      const pendingComments = commentsData.comments.filter(
+        (comment) => comment.status === "pending"
+      );
+      
+      if (pendingComments.length > 0) {
+        processCommentsForAutoReply(pendingComments, autoReplySettings)
+          .then((autoRepliedCount) => {
+            if (autoRepliedCount > 0) {
+              toast({
+                title: "Auto-replies sent",
+                description: `${autoRepliedCount} comment${
+                  autoRepliedCount === 1 ? " has" : "s have"
+                } been automatically responded to.`,
+              });
+              // Refresh comments after auto-replies have been processed
+              queryClient.invalidateQueries({ queryKey: ["comments"] });
+            }
+          })
+          .catch((error) => {
+            console.error("Error in auto-reply process:", error);
+          });
+      }
+    }
+  }, [commentsData?.comments, autoReplySettings, autoReplyEnabled, queryClient, toast]);
 
   // Sync comments mutation
   const syncMutation = useMutation({
@@ -112,6 +168,12 @@ export default function CommentsPage() {
           {!isLoading && !isError && commentsData && (
             <Badge variant="secondary" className="ml-2">
               {commentsData.totalCount} total
+            </Badge>
+          )}
+          
+          {autoReplyEnabled && (
+            <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+              Auto-Reply Active
             </Badge>
           )}
         </div>

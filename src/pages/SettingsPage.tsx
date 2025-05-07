@@ -45,9 +45,12 @@ import {
   Loader2,
   CheckCheck,
   User,
+  MessageSquare,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
+import AutoReplySettings from "@/components/settings/AutoReplySettings";
+import { userDataApi } from "@/services/api";
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -142,6 +145,25 @@ const SettingsPage = () => {
     });
   };
 
+  // Auto-Reply Settings handler
+  const handleAutoReplySettingsSave = async (settings: any) => {
+    try {
+      // In production, this would call an API to save the settings
+      await userDataApi.saveAutoReplySettings(settings);
+      
+      toast({
+        title: "Auto-reply settings updated",
+        description: "Your auto-reply configuration has been saved.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Failed to save settings",
+        description: "There was an error saving your auto-reply settings."
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="flex flex-col space-y-2">
@@ -152,7 +174,7 @@ const SettingsPage = () => {
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid w-full md:w-auto grid-cols-4 md:grid-cols-none md:flex">
+        <TabsList className="grid w-full md:w-auto grid-cols-5 md:grid-cols-none md:flex">
           <TabsTrigger value="profile" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
@@ -164,6 +186,10 @@ const SettingsPage = () => {
           <TabsTrigger value="ai-settings" className="flex items-center">
             <SettingsIcon className="mr-2 h-4 w-4" />
             <span>AI Settings</span>
+          </TabsTrigger>
+          <TabsTrigger value="auto-reply" className="flex items-center">
+            <MessageSquare className="mr-2 h-4 w-4" />
+            <span>Auto-Reply</span>
           </TabsTrigger>
           <TabsTrigger value="billing" className="flex items-center">
             <CreditCard className="mr-2 h-4 w-4" />
@@ -438,6 +464,7 @@ const SettingsPage = () => {
                           <SelectContent>
                             <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster)</SelectItem>
                             <SelectItem value="gpt-4">GPT-4 (Higher Quality)</SelectItem>
+                            <SelectItem value="gpt-4o-mini">GPT-4o Mini (Balanced)</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -543,6 +570,11 @@ const SettingsPage = () => {
               </Form>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* New Auto-Reply Tab */}
+        <TabsContent value="auto-reply" className="mt-6">
+          <AutoReplySettings onSave={handleAutoReplySettingsSave} />
         </TabsContent>
 
         {/* Billing Settings */}

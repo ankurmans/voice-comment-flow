@@ -57,7 +57,7 @@ serve(async (req) => {
     }
     contextInfo.push(`Comment by user: "${commentContent}"`);
 
-    // Construct the system message
+    // Construct the system message - enhanced for confidence scoring
     const systemMessage = `You are a social media manager helping to respond to comments. 
 ${intentGuidance}
 
@@ -68,7 +68,10 @@ Generate ${count} different response options that are:
 4. Each with a slightly different tone or approach
 5. No hashtags unless specifically responding to a comment with hashtags
 
-Only provide the response text without any additional explanations or numbering.`;
+For each response, also include a confidence score between 0-1 (where 1 is highest confidence) 
+indicating how appropriate and effective this response is for this specific comment.
+
+Format each response as: "Response (confidence_score): [your response text]"`;
 
     // Make request to OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -99,27 +102,58 @@ Only provide the response text without any additional explanations or numbering.
     // Parse the response into separate suggestions
     const content = data.choices[0].message.content;
     
-    // Split the content by newlines and filter out empty lines
-    let suggestions = content
-      .split(/\n{2,}/)
-      .map(text => text.trim())
-      .filter(text => text && !text.startsWith('Response') && !text.startsWith('Option'));
+    // Parse the responses with their confidence scores
+    const regex = /Response\s*\((\d+\.?\d*)\):\s*(.*?)(?=Response|$)/gis;
+    const matches = [...content.matchAll(regex)];
     
-    // If we don't get enough distinct suggestions, try another parsing approach
-    if (suggestions.length < count) {
-      suggestions = content
-        .split(/\d+\.\s+/)
-        .map(text => text.trim())
-        .filter(text => text);
+    let suggestions = [];
+    let confidenceScores = [];
+    
+    if (matches.length > 0) {
+      for (const match of matches) {
+        const confidence = parseFloat(match[1]);
+        const text = match[2].trim();
+        
+        if (text) {
+          suggestions.push(text);
+          confidenceScores.push(confidence);
+        }
+      }
+    } else {
+      // Fallback parsing method
+      const lines = content.split(/\n+/);
+      for (const line of lines) {
+        const confidenceMatch = line.match(/\((\d+\.?\d*)\)/);
+        if (confidenceMatch) {
+          const confidence = parseFloat(confidenceMatch[1]);
+          const text = line.replace(/.*?\):\s*/, '').trim();
+          
+          if (text) {
+            suggestions.push(text);
+            confidenceScores.push(confidence);
+          }
+        } else if (line.trim() && !line.startsWith('Response')) {
+          suggestions.push(line.trim());
+          confidenceScores.push(0.75); // Default confidence
+        }
+      }
     }
     
     // Take only the requested number of suggestions
     suggestions = suggestions.slice(0, count);
-
+    confidenceScores = confidenceScores.slice(0, count);
+    
+    // If we still don't have enough responses, generate simple ones
+    while (suggestions.length < count) {
+      suggestions.push(`Thank you for your comment!`);
+      confidenceScores.push(0.5); // Low confidence for default responses
+    }
+    
     return new Response(
       JSON.stringify({ 
         commentId, 
-        suggestions 
+        suggestions,
+        confidenceScores
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
