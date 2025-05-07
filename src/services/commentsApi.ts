@@ -1,41 +1,58 @@
 
-import { Comment, ApiResponse } from "../types";
 import { fetchWithAuth } from "./fetchUtils";
+import { mockDataService } from "./mockDataService";
 
 export const commentsApi = {
-  getAll: async (filters?: { 
-    status?: string; 
-    platform?: string;
-    accountId?: string;
-    page?: number;
-    limit?: number;
-  }) => {
-    const queryParams = new URLSearchParams();
-    
-    if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) queryParams.append(key, value.toString());
-      });
+  getAll: async (filters?: { status?: string; platform?: string; limit?: number }) => {
+    // Return mock data instead of making an API call
+    if (filters?.status === "pending") {
+      return {
+        data: {
+          comments: mockDataService.getPendingComments(),
+          totalCount: mockDataService.getPendingComments().length,
+        },
+        status: "success"
+      };
     }
     
-    return fetchWithAuth<{ comments: Comment[]; total: number; page: number }>(`/comments?${queryParams}`);
+    // Real API call (commented out for now)
+    // const queryParams = new URLSearchParams();
+    // if (filters?.status) queryParams.append("status", filters.status);
+    // if (filters?.platform) queryParams.append("platform", filters.platform);
+    // if (filters?.limit) queryParams.append("limit", filters.limit.toString());
+    
+    // const url = `/comments${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+    // return fetchWithAuth(url);
+    
+    return {
+      data: {
+        comments: mockDataService.getPendingComments(),
+        totalCount: mockDataService.getPendingComments().length
+      },
+      status: "success"
+    };
   },
   
-  getById: async (commentId: string) => {
-    return fetchWithAuth<Comment>(`/comments/${commentId}`);
+  sync: async () => {
+    // Mock successful sync
+    return {
+      status: "success",
+      data: {
+        message: "Comments synced successfully",
+        newComments: 5
+      }
+    };
+    
+    // Real API call (commented out for now)
+    // return fetchWithAuth("/comments/sync", {
+    //   method: "POST",
+    // });
   },
   
-  updateStatus: async (commentId: string, status: Comment['status']) => {
-    return fetchWithAuth<Comment>(`/comments/${commentId}/status`, {
+  changeStatus: async (commentId: string, status: string) => {
+    return fetchWithAuth(`/comments/${commentId}/status`, {
       method: "PATCH",
       body: JSON.stringify({ status }),
     });
-  },
-  
-  sync: async (accountId?: string) => {
-    const url = accountId ? `/comments/sync?accountId=${accountId}` : "/comments/sync";
-    return fetchWithAuth<{ success: boolean; count: number }>(url, {
-      method: "POST",
-    });
-  },
+  }
 };

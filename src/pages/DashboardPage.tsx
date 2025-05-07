@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -35,7 +34,7 @@ const DashboardPage = () => {
     }
   });
 
-  const { data: pendingComments, isLoading: isLoadingComments } = useQuery({
+  const { data: pendingComments, isLoading: isLoadingComments, refetch: refetchComments } = useQuery({
     queryKey: ["comments", "pending"],
     queryFn: async () => {
       const response = await commentsApi.getAll({ status: "pending", limit: 5 });
@@ -44,8 +43,10 @@ const DashboardPage = () => {
   });
 
   const syncComments = async () => {
-    await commentsApi.sync();
-    // Refetch comments
+    const result = await commentsApi.sync();
+    if (result.status === "success") {
+      refetchComments();
+    }
   };
 
   const getPlatformIcon = (platform: string) => {
