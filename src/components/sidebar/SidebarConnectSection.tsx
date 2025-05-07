@@ -1,4 +1,3 @@
-
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarSocialItem } from "./SidebarSocialItem";

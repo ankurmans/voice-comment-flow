@@ -8,3 +8,4 @@ export { commentsApi } from "../commentsApi";
 export { repliesApi } from "./replies";
 export { brandVoiceApi } from "../brandVoiceApi";
 export { analyticsApi } from "../analyticsApi";
+export { userDataApi } from "../userDataApi";
