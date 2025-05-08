@@ -15,10 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 import { ScrollingHeadline } from "@/components/landing/ScrollingHeadline";
 import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
 import { SocialPlatformIcons } from "@/components/landing/SocialPlatformIcons";
+import { Card, CardContent } from "@/components/ui/card";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -31,6 +32,30 @@ const headlines = [
   "Set your tone. Let Driply handle the rest.",
   "Never ghost your audience again.",
   "Real replies. Real tone. Zero burnout.",
+];
+
+const valuePropositions = [
+  {
+    color: "bg-purple-100",
+    headline: "Set your tone. Let Driply handle the rest.",
+    text: "Upload a few comments, captions, or just describe your vibe — Driply instantly learns how you speak so every reply sounds authentically you.",
+    cta: "Train Your Voice",
+    icon: "/icons/train-voice.png",
+  },
+  {
+    color: "bg-red-100",
+    headline: "Reply from Instagram, Facebook, Google, and more.",
+    text: "Driply listens to every comment across your posts and reviews — and responds fast, on-brand, and in your style.",
+    cta: "Connect Your Accounts",
+    icon: "/icons/connect-accounts.png",
+  },
+  {
+    color: "bg-yellow-100",
+    headline: "Engagement, on autopilot.",
+    text: "Track what replies get the most love. See how fast you're responding. Prove your brand presence with real comment receipts.",
+    cta: "Get Started For Free",
+    icon: "/icons/analytics.png",
+  },
 ];
 
 const LoginPage = () => {
@@ -70,89 +95,121 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Login Form */}
+      {/* Login and Value Props Section */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto bg-white py-8 px-6 shadow-md rounded-lg sm:px-10">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Sign in to your account
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Or{" "}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:text-primary/80"
-              >
-                create a new account
-              </Link>
-            </p>
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-start">
+          {/* Login Form */}
+          <div className="bg-white py-8 px-6 shadow-md rounded-lg sm:px-10 mx-auto w-full max-w-md">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Sign in to your account
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Or{" "}
+                <Link
+                  to="/register"
+                  className="font-medium text-primary hover:text-primary/80"
+                >
+                  create a new account
+                </Link>
+              </p>
+            </div>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email address</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="email" 
+                          placeholder="you@example.com" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex items-center justify-between">
+                  <div className="text-sm">
+                    <Link
+                      to="/forgot-password"
+                      className="font-medium text-primary hover:text-primary/80"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
+                </Button>
+              </form>
+            </Form>
           </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email address</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="email" 
-                        placeholder="you@example.com" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          {/* Value Proposition Cards */}
+          <div className="space-y-6">
+            {valuePropositions.map((prop, index) => (
+              <Card key={index} className={`overflow-hidden border-none shadow-lg ${prop.color}`}>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold mb-2">{prop.headline}</h3>
+                  <p className="text-gray-700 mb-4">{prop.text}</p>
+                  <Button onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}>
+                    {prop.cta} <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <Link
-                    to="/forgot-password"
-                    className="font-medium text-primary hover:text-primary/80"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign in"
-                )}
-              </Button>
-            </form>
-          </Form>
+      {/* Dashboard Preview Section */}
+      <div className="py-12 px-4 bg-gradient-to-r from-purple-50 to-blue-50">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-6">See your engagement grow in real-time</h2>
+          <div className="max-w-5xl mx-auto rounded-lg shadow-xl overflow-hidden">
+            <img 
+              src="/dashboard-preview.jpg" 
+              alt="Driply Analytics Dashboard" 
+              className="w-full h-auto"
+            />
+          </div>
         </div>
       </div>
 
