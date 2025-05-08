@@ -1,120 +1,116 @@
 
-import { Dispatch, SetStateAction } from "react";
-import { SocialAccount } from "@/types";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Search, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, FilterX, Loader2, RefreshCcw } from "lucide-react";
 
-interface FilterState {
-  status: string;
-  platform: string;
-  accountId: string;
-  search: string;
-  limit: number;
-}
-
-export interface CommentsFilterProps {
-  filters: FilterState;
-  onFilterChange: (newFilters: FilterState) => void;
-  accounts?: SocialAccount[];
+interface CommentsFilterProps {
+  filters: {
+    status: string;
+    platform: string;
+    accountId: string;
+    search: string;
+  };
+  onFilterChange: (filters: any) => void;
   onSync?: () => void;
   isSyncing?: boolean;
 }
 
-export const CommentsFilter = ({
-  filters,
+export function CommentsFilter({ 
+  filters, 
   onFilterChange,
-  accounts,
-  onSync,
-  isSyncing = false,
-}: CommentsFilterProps) => {
+}: CommentsFilterProps) {
+  const [searchValue, setSearchValue] = useState(filters.search || "");
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onFilterChange({ search: searchValue });
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue("");
+    onFilterChange({ search: "" });
+  };
+
   return (
-    <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-      <div className="flex flex-1 items-center space-x-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search comments..."
-            className="pl-8"
-            value={filters.search}
-            onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
-          />
-        </div>
-        
+    <div className="mb-6 space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Select
+          value={filters.status}
+          onValueChange={(value) => onFilterChange({ status: value })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Comments</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="replied">Replied</SelectItem>
+            <SelectItem value="ignored">Ignored</SelectItem>
+            <SelectItem value="flagged">Flagged</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Select
           value={filters.platform}
-          onValueChange={(value) => onFilterChange({ ...filters, platform: value })}
+          onValueChange={(value) => onFilterChange({ platform: value })}
         >
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="All platforms" />
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by platform" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Platforms</SelectLabel>
-              <SelectItem value="all">All platforms</SelectItem>
-              <SelectItem value="facebook">Facebook</SelectItem>
-              <SelectItem value="instagram">Instagram</SelectItem>
-              <SelectItem value="google">Google</SelectItem>
-            </SelectGroup>
+            <SelectItem value="all">All Platforms</SelectItem>
+            <SelectItem value="instagram">Instagram</SelectItem>
+            <SelectItem value="facebook">Facebook</SelectItem>
+            <SelectItem value="youtube">YouTube</SelectItem>
+            <SelectItem value="tiktok">TikTok</SelectItem>
           </SelectContent>
         </Select>
-        
+
         <Select
           value={filters.accountId}
-          onValueChange={(value) => onFilterChange({ ...filters, accountId: value })}
+          onValueChange={(value) => onFilterChange({ accountId: value })}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All accounts" />
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by account" />
           </SelectTrigger>
           <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Accounts</SelectLabel>
-              <SelectItem value="all">All accounts</SelectItem>
-              {accounts?.map((account: SocialAccount) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.accountName}
-                </SelectItem>
-              ))}
-            </SelectGroup>
+            <SelectItem value="all">All Accounts</SelectItem>
+            <SelectItem value="1">@brandaccount</SelectItem>
+            <SelectItem value="2">@personalaccount</SelectItem>
           </SelectContent>
         </Select>
-        
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={() => onFilterChange({ ...filters, platform: "all", accountId: "all", search: "" })}
-          title="Clear filters"
-        >
-          <FilterX className="h-4 w-4" />
-        </Button>
       </div>
 
-      {onSync && (
-        <Button
-          variant="default"
-          onClick={onSync}
-          disabled={isSyncing}
-        >
-          {isSyncing ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCcw className="mr-2 h-4 w-4" />
-          )}
-          Sync Comments
-        </Button>
-      )}
+      <form onSubmit={handleSearchSubmit} className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder="Search comments..."
+          className="pl-8"
+          value={searchValue}
+          onChange={handleSearchChange}
+        />
+        {searchValue && (
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="absolute right-2.5 top-2.5"
+          >
+            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+          </button>
+        )}
+      </form>
     </div>
   );
-};
-
-export default CommentsFilter;
+}
