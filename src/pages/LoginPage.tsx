@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2, ArrowRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ScrollingHeadline } from "@/components/landing/ScrollingHeadline";
 import { TestimonialCarousel } from "@/components/landing/TestimonialCarousel";
 import { SocialPlatformIcons } from "@/components/landing/SocialPlatformIcons";
@@ -39,21 +39,18 @@ const valuePropositions = [
     color: "bg-purple-100",
     headline: "Set your tone. Let Driply handle the rest.",
     text: "Upload a few comments, captions, or just describe your vibe — Driply instantly learns how you speak so every reply sounds authentically you.",
-    cta: "Train Your Voice",
     icon: "/icons/train-voice.png",
   },
   {
     color: "bg-red-100",
     headline: "Reply from Instagram, Facebook, Google, and more.",
     text: "Driply listens to every comment across your posts and reviews — and responds fast, on-brand, and in your style.",
-    cta: "Connect Your Accounts",
     icon: "/icons/connect-accounts.png",
   },
   {
     color: "bg-yellow-100",
     headline: "Engagement, on autopilot.",
     text: "Track what replies get the most love. See how fast you're responding. Prove your brand presence with real comment receipts.",
-    cta: "Get Started For Free",
     icon: "/icons/analytics.png",
   },
 ];
@@ -95,11 +92,24 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Login and Value Props Section */}
+      {/* Value Proposition Cards in a row */}
       <div className="py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-start">
-          {/* Login Form */}
-          <div className="bg-white py-8 px-6 shadow-md rounded-lg sm:px-10 mx-auto w-full max-w-md">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {valuePropositions.map((prop, index) => (
+            <Card key={index} className={`overflow-hidden border-none shadow-lg ${prop.color}`}>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-2">{prop.headline}</h3>
+                <p className="text-gray-700">{prop.text}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Login Form */}
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white py-8 px-6 shadow-md rounded-lg sm:px-10 w-full">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 Sign in to your account
@@ -180,35 +190,6 @@ const LoginPage = () => {
                 </Button>
               </form>
             </Form>
-          </div>
-
-          {/* Value Proposition Cards */}
-          <div className="space-y-6">
-            {valuePropositions.map((prop, index) => (
-              <Card key={index} className={`overflow-hidden border-none shadow-lg ${prop.color}`}>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-2">{prop.headline}</h3>
-                  <p className="text-gray-700 mb-4">{prop.text}</p>
-                  <Button onClick={() => document.querySelector('form')?.scrollIntoView({ behavior: 'smooth' })}>
-                    {prop.cta} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Dashboard Preview Section */}
-      <div className="py-12 px-4 bg-gradient-to-r from-purple-50 to-blue-50">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-6">See your engagement grow in real-time</h2>
-          <div className="max-w-5xl mx-auto rounded-lg shadow-xl overflow-hidden">
-            <img 
-              src="/dashboard-preview.jpg" 
-              alt="Driply Analytics Dashboard" 
-              className="w-full h-auto"
-            />
           </div>
         </div>
       </div>

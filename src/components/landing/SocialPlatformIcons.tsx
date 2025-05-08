@@ -1,5 +1,5 @@
 
-import { Facebook, Github, Instagram, Linkedin, Twitter, YoutubeIcon } from "lucide-react";
+import { Facebook, Github, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 
 export const SocialPlatformIcons = () => {
   return (
@@ -13,7 +13,7 @@ export const SocialPlatformIcons = () => {
         <span className="text-xs mt-1 text-gray-600">Facebook</span>
       </div>
       <div className="flex flex-col items-center">
-        <YoutubeIcon className="h-8 w-8 text-red-600 hover:scale-110 transition-transform" />
+        <Youtube className="h-8 w-8 text-red-600 hover:scale-110 transition-transform" />
         <span className="text-xs mt-1 text-gray-600">YouTube</span>
       </div>
       <div className="flex flex-col items-center">
