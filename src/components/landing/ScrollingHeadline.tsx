@@ -26,7 +26,8 @@ export const ScrollingHeadline = ({
   }, [headlines.length, interval]);
 
   return (
-    <div className="h-24 flex items-center justify-center overflow-hidden">
+    <div className="h-24 flex items-center justify-center overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/30 to-transparent opacity-50 pointer-events-none"></div>
       <h1 
         className={`text-3xl md:text-4xl lg:text-5xl font-extrabold text-center transition-all duration-500 ease-in-out ${
           isAnimating ? "opacity-0 -translate-y-8" : "opacity-100 translate-y-0"

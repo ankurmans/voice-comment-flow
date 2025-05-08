@@ -1,12 +1,13 @@
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Facebook, Instagram, Twitter, YoutubeIcon, Linkedin, Trophy, DollarSign } from "lucide-react";
 
 interface TestimonialCardProps {
   name: string;
   username: string;
   avatar: string;
   comment: string;
-  platform: "instagram" | "facebook" | "youtube" | "tiktok";
+  platform: "instagram" | "facebook" | "youtube" | "tiktok" | "twitter" | "linkedin" | "gaming" | "monetize";
   verified?: boolean;
 }
 
@@ -21,13 +22,25 @@ export const TestimonialCard = ({
   const getPlatformIcon = () => {
     switch (platform) {
       case "instagram":
-        return <span className="social-icon social-icon-instagram">Instagram</span>;
+        return <Instagram className="h-4 w-4 text-pink-600" />;
       case "facebook":
-        return <span className="social-icon social-icon-facebook">Facebook</span>;
+        return <Facebook className="h-4 w-4 text-blue-600" />;
       case "youtube":
-        return <span className="social-icon">YouTube</span>;
+        return <YoutubeIcon className="h-4 w-4 text-red-600" />;
       case "tiktok":
-        return <span className="social-icon">TikTok</span>;
+        return (
+          <svg className="h-4 w-4 text-black" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298 0 .594.044.88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+          </svg>
+        );
+      case "twitter":
+        return <Twitter className="h-4 w-4 text-blue-400" />;
+      case "linkedin":
+        return <Linkedin className="h-4 w-4 text-blue-700" />;
+      case "gaming":
+        return <Trophy className="h-4 w-4 text-amber-500" />;
+      case "monetize":
+        return <DollarSign className="h-4 w-4 text-green-600" />;
       default:
         return null;
     }
@@ -64,7 +77,10 @@ export const TestimonialCard = ({
             <div className="flex items-center text-xs text-gray-500">
               <span>@{username}</span>
               <span className="mx-1">•</span>
-              {getPlatformIcon()}
+              <div className="flex items-center">
+                {getPlatformIcon()}
+                <span className="ml-1">{platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+              </div>
             </div>
           </div>
         </div>
