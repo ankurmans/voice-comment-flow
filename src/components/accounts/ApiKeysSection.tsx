@@ -243,7 +243,7 @@ export function ApiKeysSection() {
             <ol className="list-decimal ml-5 space-y-1 text-sm text-muted-foreground">
               <li>Go to the Facebook Developer Portal</li>
               <li>Create a new app or use an existing app</li>
-              <li>Navigate to Tools > Graph API Explorer</li>
+              <li>Navigate to Tools &gt; Graph API Explorer</li>
               <li>Select your app and generate a user or page access token</li>
             </ol>
           </div>
