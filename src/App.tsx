@@ -10,6 +10,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { useState, useEffect } from "react";
 
 // Pages
+import Index from "./pages/Index";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -74,12 +75,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Landing Page */}
+            <Route path="/" element={<Index />} />
+            
             {/* Auth Routes */}
             <Route path="/login" element={<AuthLayout><LoginPage /></AuthLayout>} />
             <Route path="/register" element={<AuthLayout><RegisterPage /></AuthLayout>} />
             
             {/* Protected Routes */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/comments" element={<ProtectedRoute><CommentsPage /></ProtectedRoute>} />
             <Route path="/brand-voice" element={<ProtectedRoute><BrandVoicePage /></ProtectedRoute>} />
