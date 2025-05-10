@@ -88,6 +88,7 @@ const App = () => (
             <Route path="/brand-voice" element={<ProtectedRoute><BrandVoicePage /></ProtectedRoute>} />
             <Route path="/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
             <Route path="/accounts/connect/:platform" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
+            <Route path="/accounts/api-keys" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             

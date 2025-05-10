@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AccountsList } from "@/components/accounts/AccountsList";
 import { ConnectPlatformsSection } from "@/components/accounts/ConnectPlatformsSection";
+import { ApiKeysSection } from "@/components/accounts/ApiKeysSection";
 import { SocialAccount, BrandVoice } from "@/types";
 
 interface AccountTabsProps {
@@ -33,6 +34,8 @@ export function AccountTabs({
     const tabParam = params.get("tab");
     if (tabParam === "connect") {
       setActiveTab("connect");
+    } else if (tabParam === "api-keys") {
+      setActiveTab("api-keys");
     }
   }, [location.search]);
 
@@ -40,7 +43,7 @@ export function AccountTabs({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     // Update URL without full page refresh
-    navigate(`/accounts${value === "connect" ? "?tab=connect" : ""}`, { replace: true });
+    navigate(`/accounts${value !== "connected" ? `?tab=${value}` : ""}`, { replace: true });
   };
 
   const handleSwitchToConnectTab = () => {
@@ -55,6 +58,7 @@ export function AccountTabs({
       <TabsList>
         <TabsTrigger value="connected">Connected Accounts</TabsTrigger>
         <TabsTrigger value="connect">Connect New Account</TabsTrigger>
+        <TabsTrigger value="api-keys">API Keys</TabsTrigger>
       </TabsList>
       
       {/* Connected Accounts Tab */}
@@ -74,6 +78,11 @@ export function AccountTabs({
         <ConnectPlatformsSection 
           onConnectPlatform={onConnectPlatform} 
         />
+      </TabsContent>
+      
+      {/* API Keys Tab */}
+      <TabsContent value="api-keys" className="mt-6">
+        <ApiKeysSection />
       </TabsContent>
     </Tabs>
   );
