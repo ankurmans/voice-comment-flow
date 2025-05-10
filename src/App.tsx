@@ -17,7 +17,6 @@ import DashboardPage from "./pages/DashboardPage";
 import CommentsPage from "./pages/CommentsPage";
 import BrandVoicePage from "./pages/BrandVoicePage";
 import AccountsPage from "./pages/AccountsPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
@@ -89,7 +88,10 @@ const App = () => (
             <Route path="/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
             <Route path="/accounts/connect/:platform" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
             <Route path="/accounts/api-keys" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            
+            {/* Redirect Analytics to Dashboard */}
+            <Route path="/analytics" element={<Navigate to="/dashboard" replace />} />
+            
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             
             {/* Catch All */}

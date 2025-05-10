@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -6,8 +7,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SocialAccount } from "@/types";
-import { ArrowRight, Facebook, Instagram, RefreshCcw, MessageSquareText, ThumbsUp, BarChart3, AlertCircle } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, RefreshCcw, MessageSquareText, ThumbsUp, BarChart3, AlertCircle, ArrowDown, ArrowUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const DashboardPage = () => {
   const [period, setPeriod] = useState<string>("week");
@@ -21,7 +35,7 @@ const DashboardPage = () => {
   });
 
   const { data: analytics, isLoading: isLoadingAnalytics } = useQuery({
-    queryKey: ["analytics", period],
+    queryKey: ["analytics-summary", period],
     queryFn: async () => {
       const response = await analyticsApi.getSummary(period);
       return response.data || {
@@ -34,6 +48,22 @@ const DashboardPage = () => {
     }
   });
 
+  const { data: platformData, isLoading: isLoadingPlatformData } = useQuery({
+    queryKey: ["analytics-platform", period],
+    queryFn: async () => {
+      const response = await analyticsApi.getCommentsByPlatform(period);
+      return response.data || [];
+    },
+  });
+
+  const { data: engagementData, isLoading: isLoadingEngagementData } = useQuery({
+    queryKey: ["analytics-engagement", period],
+    queryFn: async () => {
+      const response = await analyticsApi.getEngagementMetrics(period);
+      return response.data || [];
+    },
+  });
+
   const { data: pendingComments, isLoading: isLoadingComments, refetch: refetchComments } = useQuery({
     queryKey: ["comments", "pending"],
     queryFn: async () => {
@@ -42,11 +72,36 @@ const DashboardPage = () => {
     }
   });
 
+  // Placeholder data when API returns empty data
+  const placeholderPlatformData = [
+    { name: "Instagram", value: 42 },
+    { name: "Facebook", value: 28 },
+    { name: "Google", value: 15 },
+  ];
+
+  const placeholderEngagementData = [
+    { date: "Mon", before: 15, after: 22 },
+    { date: "Tue", before: 18, after: 26 },
+    { date: "Wed", before: 20, after: 32 },
+    { date: "Thu", before: 22, after: 36 },
+    { date: "Fri", before: 16, after: 28 },
+    { date: "Sat", before: 14, after: 24 },
+    { date: "Sun", before: 16, after: 30 },
+  ];
+
+  // Chart colors
+  const COLORS = ["#8B5CF6", "#F97316", "#EF4444", "#10B981"];
+
   const syncComments = async () => {
     const result = await commentsApi.sync();
     if (result.status === "success") {
       refetchComments();
     }
+  };
+
+  // Format percentage with + sign for positive values
+  const formatPercentage = (value: number) => {
+    return `${value > 0 ? "+" : ""}${value}%`;
   };
 
   const getPlatformIcon = (platform: string) => {
@@ -78,11 +133,26 @@ const DashboardPage = () => {
   return (
     <div className="flex flex-col space-y-6 p-6">
       <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Dashboard & Analytics</h1>
         <p className="text-muted-foreground">
-          Overview of your social engagement activities
+          Overview of your social engagement performance
         </p>
       </div>
+
+      {/* Time Period Selector */}
+      <Tabs
+        defaultValue="week"
+        value={period}
+        onValueChange={setPeriod}
+        className="mb-4"
+      >
+        <TabsList>
+          <TabsTrigger value="day">Today</TabsTrigger>
+          <TabsTrigger value="week">This Week</TabsTrigger>
+          <TabsTrigger value="month">This Month</TabsTrigger>
+          <TabsTrigger value="all">All Time</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Analytics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -158,9 +228,13 @@ const DashboardPage = () => {
             {isLoadingAnalytics ? (
               <Skeleton className="h-8 w-20" />
             ) : (
-              <div className="text-2xl font-bold">
-                {analytics?.engagementDelta > 0 ? "+" : ""}
-                {analytics?.engagementDelta || 0}%
+              <div className="flex items-center text-2xl font-bold">
+                {formatPercentage(analytics?.engagementDelta || 0)}
+                {analytics?.engagementDelta && analytics.engagementDelta > 0 ? (
+                  <ArrowUp className="ml-1 h-4 w-4 text-green-500" />
+                ) : analytics?.engagementDelta && analytics.engagementDelta < 0 ? (
+                  <ArrowDown className="ml-1 h-4 w-4 text-red-500" />
+                ) : null}
               </div>
             )}
             <p className="text-xs text-muted-foreground">
@@ -170,139 +244,281 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Connected Accounts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Connected Accounts</CardTitle>
-            <CardDescription>
-              Social accounts linked to CommentCrafter
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoadingAccounts ? (
-              <div className="space-y-2">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-              </div>
-            ) : accounts && accounts.length > 0 ? (
-              <div className="space-y-2">
-                {accounts.map((account: SocialAccount) => (
-                  <div
-                    key={account.id}
-                    className="flex items-center justify-between rounded-md border p-3"
-                  >
-                    <div className="flex items-center space-x-3">
-                      {getPlatformIcon(account.platform)}
-                      <div>
-                        <p className="font-medium">{account.accountName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      {account.isConnected ? (
-                        <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                          Connected
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
-                          Disconnected
-                        </span>
-                      )}
-                    </div>
+      {/* Main Content Grid */}
+      <div className="grid gap-6 md:grid-cols-12">
+        {/* Left Column */}
+        <div className="md:col-span-8 space-y-6">
+          {/* Analytics Charts */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Comments by Platform Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Comments by Platform</CardTitle>
+                <CardDescription>
+                  Distribution of comments across social platforms
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingPlatformData ? (
+                  <div className="flex justify-center">
+                    <Skeleton className="h-[220px] w-[220px] rounded-full" />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8">
-                <AlertCircle className="h-10 w-10 text-muted-foreground" />
-                <h3 className="mt-2 text-lg font-semibold">No accounts connected</h3>
-                <p className="text-sm text-muted-foreground text-center mt-1">
-                  Connect your social accounts to start managing comments
-                </p>
-                <Button asChild className="mt-4">
-                  <Link to="/accounts">Connect Accounts</Link>
-                </Button>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" asChild className="w-full">
-              <Link to="/accounts">
-                Manage Accounts
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+                ) : (
+                  <div className="h-[250px] flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={platformData?.length ? platformData : placeholderPlatformData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={true}
+                          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {(platformData?.length ? platformData : placeholderPlatformData).map(
+                            (entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                              />
+                            )
+                          )}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value, name) => [value, name]}
+                          labelFormatter={() => ""}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Pending Comments */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Pending Comments</CardTitle>
-              <CardDescription>
-                Comments waiting for your response
-              </CardDescription>
-            </div>
-            <Button variant="outline" size="icon" onClick={syncComments}>
-              <RefreshCcw className="h-4 w-4" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {isLoadingComments ? (
-              <div className="space-y-2">
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
+            {/* Engagement Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Engagement Growth</CardTitle>
+                <CardDescription>
+                  Before vs after implementing replies
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingEngagementData ? (
+                  <Skeleton className="h-[250px] w-full" />
+                ) : (
+                  <div className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={engagementData?.length ? engagementData : placeholderEngagementData}
+                        margin={{
+                          top: 5,
+                          right: 10,
+                          left: 0,
+                          bottom: 5,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar
+                          dataKey="before"
+                          name="Before"
+                          fill="#8B5CF6"
+                          opacity={0.5}
+                        />
+                        <Bar
+                          dataKey="after"
+                          name="After"
+                          fill="#7E69AB"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Pending Comments */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Pending Comments</CardTitle>
+                <CardDescription>
+                  Comments waiting for your response
+                </CardDescription>
               </div>
-            ) : pendingComments && pendingComments.length > 0 ? (
-              <div className="space-y-3">
-                {pendingComments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="flex flex-col space-y-2 rounded-md border p-3 comment-card-hover"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        {getPlatformIcon(comment.platform)}
-                        <span className="font-medium truncate">
-                          {comment.commentAuthor}
+              <Button variant="outline" size="icon" onClick={syncComments}>
+                <RefreshCcw className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoadingComments ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ) : pendingComments && pendingComments.length > 0 ? (
+                <div className="space-y-3">
+                  {pendingComments.map((comment) => (
+                    <div
+                      key={comment.id}
+                      className="flex flex-col space-y-2 rounded-md border p-3 comment-card-hover"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {getPlatformIcon(comment.platform)}
+                          <span className="font-medium truncate">
+                            {comment.commentAuthor}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(comment.commentTimestamp).toLocaleDateString()}
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(comment.commentTimestamp).toLocaleDateString()}
-                      </span>
+                      <p className="text-sm">{comment.commentContent}</p>
                     </div>
-                    <p className="text-sm">{comment.commentContent}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8">
+                  <MessageSquareText className="h-10 w-10 text-muted-foreground" />
+                  <h3 className="mt-2 text-lg font-semibold">No pending comments</h3>
+                  <p className="text-sm text-muted-foreground text-center mt-1">
+                    All your comments have been addressed
+                  </p>
+                  <Button variant="outline" onClick={syncComments} className="mt-4">
+                    <RefreshCcw className="mr-2 h-4 w-4" />
+                    Sync Comments
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
+                <Link to="/comments">
+                  View All Comments
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="md:col-span-4 space-y-6">
+          {/* Connected Accounts */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Connected Accounts</CardTitle>
+              <CardDescription>
+                Social accounts linked to CommentCrafter
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingAccounts ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : accounts && accounts.length > 0 ? (
+                <div className="space-y-2">
+                  {accounts.map((account: SocialAccount) => (
+                    <div
+                      key={account.id}
+                      className="flex items-center justify-between rounded-md border p-3"
+                    >
+                      <div className="flex items-center space-x-3">
+                        {getPlatformIcon(account.platform)}
+                        <div>
+                          <p className="font-medium">{account.accountName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {account.platform.charAt(0).toUpperCase() + account.platform.slice(1)}
+                          </p>
+                        </div>
+                      </div>
+                      <div>
+                        {account.isConnected ? (
+                          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                            Connected
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+                            Disconnected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8">
+                  <AlertCircle className="h-10 w-10 text-muted-foreground" />
+                  <h3 className="mt-2 text-lg font-semibold">No accounts connected</h3>
+                  <p className="text-sm text-muted-foreground text-center mt-1">
+                    Connect your social accounts to start managing comments
+                  </p>
+                  <Button asChild className="mt-4">
+                    <Link to="/accounts">Connect Accounts</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" asChild className="w-full">
+                <Link to="/accounts">
+                  Manage Accounts
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Response Performance Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Response Summary</CardTitle>
+              <CardDescription>
+                Platform performance overview
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="relative overflow-x-auto">
+                <table className="w-full text-sm text-left text-gray-600">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-3 py-2">Platform</th>
+                      <th scope="col" className="px-3 py-2">Response</th>
+                      <th scope="col" className="px-3 py-2">Engagement</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="bg-white border-b">
+                      <td className="px-3 py-2 font-medium">Instagram</td>
+                      <td className="px-3 py-2">90.5%</td>
+                      <td className="px-3 py-2 text-green-600">+24%</td>
+                    </tr>
+                    <tr className="bg-gray-50 border-b">
+                      <td className="px-3 py-2 font-medium">Facebook</td>
+                      <td className="px-3 py-2">89.3%</td>
+                      <td className="px-3 py-2 text-green-600">+18%</td>
+                    </tr>
+                    <tr className="bg-white border-b">
+                      <td className="px-3 py-2 font-medium">Google</td>
+                      <td className="px-3 py-2">100%</td>
+                      <td className="px-3 py-2 text-green-600">+32%</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center rounded-md border border-dashed p-8">
-                <MessageSquareText className="h-10 w-10 text-muted-foreground" />
-                <h3 className="mt-2 text-lg font-semibold">No pending comments</h3>
-                <p className="text-sm text-muted-foreground text-center mt-1">
-                  All your comments have been addressed
-                </p>
-                <Button variant="outline" onClick={syncComments} className="mt-4">
-                  <RefreshCcw className="mr-2 h-4 w-4" />
-                  Sync Comments
-                </Button>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button asChild className="w-full">
-              <Link to="/comments">
-                View All Comments
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

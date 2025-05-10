@@ -1,5 +1,5 @@
 
-import { Activity, MessageSquareText, BarChart3 } from "lucide-react";
+import { Activity, MessageSquareText } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu } from "@/components/ui/sidebar";
 import { SidebarMenuItemComponent } from "./SidebarMenuItem";
@@ -19,7 +19,7 @@ export function SidebarMainSection() {
           <SidebarMenuItemComponent 
             to="/dashboard" 
             icon={Activity} 
-            label="Dashboard" 
+            label="Dashboard & Analytics" 
             isActive={isActive("/dashboard")}
           />
           <SidebarMenuItemComponent 
@@ -27,12 +27,6 @@ export function SidebarMainSection() {
             icon={MessageSquareText} 
             label="Comments" 
             isActive={isActive("/comments")}
-          />
-          <SidebarMenuItemComponent 
-            to="/analytics" 
-            icon={BarChart3} 
-            label="Analytics" 
-            isActive={isActive("/analytics")}
           />
         </SidebarMenu>
       </SidebarGroupContent>
